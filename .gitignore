@@ -1,0 +1,15 @@
+*-blx.bib
+*.acn
+*.aux
+*.bbl
+*.blg
+*.glo
+*.ist
+*.log
+*.nav
+*.out
+*.pdf
+*.run.xml
+*.snm
+*.toc
+*~
