@@ -9,6 +9,7 @@
 \usepackage{graphicx}
 \graphicspath{{figures/}{imgs/}}
 \usepackage[backend=bibtex,style=ieee]{biblatex}
+\usepackage{biblatex}
 \bibliography{bib/db.bib}
 \usepackage[acronym,shortcuts]{glossaries}
 \makeglossaries
@@ -19,8 +20,8 @@
 
 \title{Presentation of the Literature}
 %\subtitle{Short title}
-\author{<Firstname> <Lastname>}
-\matrnr{<matrnr>}
+\author{Jakob Gruber}
+\matrnr{0203440}
 \date{\today}
 %\advisor{%
 %	Betreuer 1\\
@@ -42,13 +43,15 @@
 \section{The selected paper}
 
 \begin{frame}{The selected paper}
+    \fullcite{journals/corr/abs-1004-3057}
+    
 	A few sentences about the content of the selected paper.
 \end{frame}
 
 \section{My paper}
 
 \begin{frame}{My paper}
-	Title: here should be the preliminary title of your paper
+	Title: Dining Cryptographers: Resilient and Efficient Anonymous Group Messaging 
 	
 	Preliminary content structure:
 	\begin{itemize}
@@ -63,7 +66,10 @@
 \section{Related Work}
 
 \begin{frame}[allowframebreaks]{References}
-	\nocite{grechenig:2009:softwaretechnik}
+	\nocite{journals/corr/abs-1004-3057}
+	\nocite{journals/joc/Chaum88}
+	\nocite{conf/eurocrypt/GolleJ04}
+	\nocite{journals/cacm/Chaum81}
 	% \nocite{*}
 	\printbibliography
 \end{frame}
