@@ -24,8 +24,8 @@
 \matrnr{0203440}
 \date{\today}
 %\advisor{%
-%	Betreuer 1\\
-%	Betreuer 2
+%   Betreuer 1\\
+%   Betreuer 2
 %}
 
 \setlength{\parskip}{1em}
@@ -34,50 +34,55 @@
 
 \maketitle
 
-\begin{frame}[t]{Outline}
-	\begin{minipage}[t][10em][t]{\linewidth}
-		\tableofcontents
-	\end{minipage}
-\end{frame}
-
 \section{The selected paper}
 
 \begin{frame}{The selected paper}
     \fullcite{journals/corr/abs-1004-3057}
     
-	A few sentences about the content of the selected paper.
+    \begin{itemize}
+        \item Anonymous group communication based on DC-nets
+        \item Resilience against internal disruptions through accountability
+        \item Scalability through a hybrid implementation
+    \end{itemize}
 \end{frame}
 
 \section{My paper}
 
 \begin{frame}{My paper}
-	Title: Dining Cryptographers: Resilient and Efficient Anonymous Group Messaging 
-	
-	Preliminary content structure:
-	\begin{itemize}
-		\item Introduction
-		\item Related Work
-		\item Preliminary structure...
-		\item Conclusion
-		\item [] References
-	\end{itemize}
+    Title: State of the Art in Dining Cryptographers
+    
+    Preliminary content structure:
+    \begin{itemize}
+        \item Introduction
+        \item Related Work
+        \item The Dining Cryptographers Protocol
+        \item Dealing with Disruptors
+        \item Achieving Scalability
+        \item Conclusion
+        \item [] References
+    \end{itemize}
 \end{frame}
 
 \section{Related Work}
 
 \begin{frame}[allowframebreaks]{References}
-	\nocite{journals/corr/abs-1004-3057}
-	\nocite{journals/joc/Chaum88}
-	\nocite{conf/eurocrypt/GolleJ04}
-	\nocite{journals/cacm/Chaum81}
-	% \nocite{*}
-	\printbibliography
+    \nocite{journals/joc/Chaum88}
+    \nocite{conf/eurocrypt/GolleJ04}
+    \nocite{journals/corr/abs-1004-3057}
+    \nocite{journals/cacm/Chaum81}
+    \nocite{goel2003herbivore}
+    \nocite{conf/uss/DingledineMS04}
+    \nocite{von2003k}
+    \nocite{ElGamal1985}
+    \nocite{conf/ccs/Neff01}
+    \nocite{danezis2008survey}
+    \printbibliography
 \end{frame}
 
 \begin{titleframe}
-	\begin{center}
-	\alert{\Large Thank you!}
-	\end{center}
+    \begin{center}
+    \alert{\Large Thank you!}
+    \end{center}
 \end{titleframe}
 
 \end{document}
