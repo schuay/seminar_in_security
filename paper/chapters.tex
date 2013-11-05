@@ -3,15 +3,94 @@
 The introduction should contain the background of the problem, why it is important, and what others have done to solve this problem. All related existing work should be properly described and referenced. The proposed solution should be briefly described, with explanations of how it is different from, and superior to, existing solutions. The last paragraph should be a summary of what will be described in each subsequent section of the paper.
 \cite{waidner1989dining}
 
+\section{The Dining Cryptographers Protocol}
+
+The initial idea of \acp{DCNetwork} was first proposed by \citeauthor{journals/joc/Chaum88}
+at Crypto 1984 and subsequently published in \citeyear{journals/joc/Chaum88} \cite{journals/joc/Chaum88}.
+
+\citeauthor{journals/joc/Chaum88} introduces the protocol with the following demonstration:
+Consider three cryptographers seated around a round table at a restaurant.
+After finishing dinner, they are informed that their check has already been paid.
+Baffled, they wish to determine whether the payer was one of them (in which case
+they do not want to reveal his identity) or if they'd been sponsored by the NSA.
+
+First, each of them establishes a shared secret with each of his neighbors by flipping
+a coin behind a menu such that only the two of them can see its outcome. Each cryptographer
+who has not paid then simply announces whether the two coin flips he participated
+in landed on the same side or not, while the paying cryptographer says exactly the opposite.
+Finally, they count the number of announced differences; if it is odd, then one of them has paid.
+Otherwise, they determine that their dinner was paid by the NSA.
+
+We now formalize this scenario: let the cryptographers be represented as the vertices 
+$v_1, v_2, v_3$ in the complete graph $\mathbb{K}_3$. Each edge represents a shared
+key and is assigned the value $0$ % Continue here. Maybe do definitions of key sharing graph and build on that?
+
+
+\section{Dealing with Disruptors}
+\section{Achieving Scalability}
+
 \section{Related Work}
 
 This sections contains further publications similar to this topic. However, it can also be used to distinguish this paper to other publications.
 
 Related work can also be used to give the reader references to publications which give more details about a topic.
 
-\section{The Dining Cryptographers Protocol}
-\section{Dealing with Disruptors}
-\section{Achieving Scalability}
+\begin{comment}
+Important points:
+
+* Non-interactive
+* Computationally/Unconditionally secure
+* No central trusted party
+* Shuffled send
+* Security goals: integrity, anonymity, accountability (See dissent 2.3)
+* Attack model (dissent 2.3)
+* Assumptions, highlight difference between them (Faulty nodes never silent, ..., dissent 2.4)
+
+Sections:
+
+* 88: Base protocol
+* 89: Disco (unconditional untraceability, computationally secure serviceability)
+* 89: Waidner (Unreliable channel)
+* 90: Detection of disruptors
+* (03: Herbivore)
+* 03: k-anonymity (maybe this is related work instead? weakens security goals to gain efficiency). Small DC subnets.
+* 04: dc-revisited (proactive accountability. efficient cheater detection + recovery)
+* 10: Dissent
+* 13: Verdict
+
+Definitions:
+
+* Anonymity set
+* Anonymity terms (cite def paper)
+* Anonymity game (dissent [7])
+* k-anonymity (k-anonymity)
+* Robustness? (k-anonymity 3.3)
+* (Partial, Full) Collusion
+* Disruption
+* Anytrust assumption
+* Zero knowledge proofs
+
+Attacks:
+
+* Sybil (dissent [17])
+* Sock puppetry (dissent [36])
+* Traffic analysis (verdict [4, 34, 38])
+
+Related work:
+
+* Mix nets
+* Crowds (dissent [29])
+* CliqueNet (k-anon [17])
+* Verifiable shuffles
+* Group signatures, ring signatures
+* Herbivore
+
+Random notes:
+
+* k-anonymous provide anonymity only when most members are honest (see dissent, related work)
+* Herbivore provides anonymity only within small subgroups
+
+\end{comment}
 
 \section{Conclusion}
 
