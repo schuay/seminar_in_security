@@ -2,6 +2,8 @@
 *.acn
 *.aux
 *.bbl
+*.bcf
+*.bib~*
 *.blg
 *.glo
 *.ist
