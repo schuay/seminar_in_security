@@ -1,11 +1,15 @@
 *-blx.bib
 *.acn
+*.acr
+*.alg
 *.aux
 *.bbl
 *.bcf
 *.bib~*
 *.blg
+*.glg
 *.glo
+*.gls
 *.ist
 *.kate-swp
 *.log
