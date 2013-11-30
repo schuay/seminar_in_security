@@ -5,25 +5,66 @@ The introduction should contain the background of the problem, why it is importa
 
 \section{The Dining Cryptographers Protocol}
 
+\subsection{Protocol}
+
 The initial idea of \acp{DCNetwork} was first proposed by \citeauthor{journals/joc/Chaum88}
 at Crypto 1984 and subsequently published in \citeyear{journals/joc/Chaum88} \cite{journals/joc/Chaum88}.
 
 \citeauthor{journals/joc/Chaum88} introduces the protocol with the following demonstration:
 Consider three cryptographers seated around a round table at a restaurant.
-After finishing dinner, they are informed that their check has already been paid.
+After finishing dinner, they are informed that their check has already been paid\footnote{
+We assume that the check has been paid exactly once.}.
 Baffled, they wish to determine whether the payer was one of them (in which case
-they do not want to reveal his identity) or if they'd been sponsored by the NSA.
+they do not want to reveal his identity) or if their dinner has been sponsored by the NSA.
 
-First, each of them establishes a shared secret with each of his neighbors by flipping
-a coin behind a menu such that only the two of them can see its outcome. Each cryptographer
+They use the following protocol to answer this question.
+In the first stage, each of them establishes a shared secret with each of his neighbors by flipping
+a coin behind a menu such that only the two of them can see its outcome. The next stage
+consists of announcements made by every participant. Each cryptographer
 who has not paid then simply announces whether the two coin flips he participated
 in landed on the same side or not, while the paying cryptographer says exactly the opposite.
 Finally, they count the number of announced differences; if it is odd, then one of them has paid.
 Otherwise, they determine that their dinner was paid by the NSA.
 
 We now formalize this scenario: let the cryptographers be represented as the vertices 
-$v_1, v_2, v_3$ in the complete graph $\mathbb{K}_3$. Each edge represents a shared
-key and is assigned the value $0$ % Continue here. Maybe do definitions of key sharing graph and build on that?
+$v_1, v_2, v_3$ in the complete graph $\mathbb{K}_3$. Each edge $e_{ij} = (v_i, v_j)$ represents a shared
+key and is assigned a bit value $k(e_{ij}) = 0$ for ``heads'' and $k(e_{ij}) = 1$ for ``tails''. Without loss of generality,
+let $v_1$ be the transmitting vertex, and let his message be $m_1 \in \{0, 1\}$ while $m_2, m_3 = 0$.
+Every vertex $v_i$ now creates its announcement value $a(v_i)$ by combining all associated shared keys $k(e_{ij})$
+as well as his message $m_i$ with XOR operations\footnote{
+The sum modulo two which is sometimes used in the literature is equivalent to XOR.}
+and broadcasts $a(v_i)$ to all other vertices in the network. Each $v_i$ is now able to
+reconstruct the originally transmitted message by calculating
+$m'_i = m_1 = a(v_1) \oplus \cdots \oplus a(v_3)$.
+
+It may not be clear why $m'_i = m_1$, but it has an immediately intuitive explanation:
+Note that each shared key $e_{ij}$ is included in $m'_i$ exactly twice.
+Since $k(e_{ij}) = k(e_{ji})$ and $m_2, m_3 = 0$:
+
+\begin{align*}
+m'_i &= a(v_1) \oplus a(v_2) \oplus a(v_3) \\
+     &= m_1 \oplus m_2 \oplus m_3 \\
+     & \oplus (k(e_{12}) \oplus k(e_{21})) \\
+     & \oplus (k(e_{13}) \oplus k(e_{31})) \\
+     & \oplus (k(e_{23}) \oplus k(e_{32})) = m_1
+\end{align*}
+
+The \ac{DCProtocol} is unconditionally secure if each member is honest and performs the
+protocol correctly. A short proof sketch considers a nonpaying cryptographer $v_1$
+wishing to expose the person who paid. In the first case both of $v_1$'s shared keys are the same
+(i.e. $a(v_1) = 0$) while $a(v_2) = 1$ and $a(v_3) = 0$. If $k(e_23) = k(e_12) = k(e_13)$, then $v_2$
+is the payer, with $v_3$ paying otherwise. Since $k(e_23)$ takes each value with a probability
+of $0.5$, $v_1$ also does not gain any information. In the second case, let $e_{12} = 1, e_{13} = 0, \text{ and } a(v_1) = 1$. If $a(v_2) = a(v_3) = 1$, the payer is $v_2$ if $e_{23} = 1$ and $v_3$ otherwise.
+Likewise, if $a(v_2) = a(v_3) = 0$ then the payer is $v_2$ if $e_{23} = 0$ and $v_3$ otherwise.
+Again, $v_1$ does not gain any information about which person has paid the bill.
+A more general proof is available in \cite{journals/joc/Chaum88}.
+
+The presented protocol is easily generalized to a larger number of participants $n > 3$ by simply
+using the complete graph $\mathbb{K}_n$. Multi-bit message $m$ of length $|m| = j$
+may be transmitted by running $j$ iterations of the \ac{DCProtocol}.  
+
+% Model
+% Possible issues: collusion, collisions, ...
 
 
 \section{Dealing with Disruptors}
