@@ -5,6 +5,9 @@ The introduction should contain the background of the problem, why it is importa
 
 \section{The Dining Cryptographers Protocol}
 
+% Adversary, model, assumptions, guarantees, goals...
+% static and public key sharing graph, reliable network, honest participants?
+
 \subsection{Protocol}
 
 The initial idea of \acp{DCNetwork} was first proposed by \citeauthor{journals/joc/Chaum88}
@@ -29,21 +32,21 @@ Otherwise, they determine that their dinner was paid by the NSA.
 We now formalize this scenario: let the cryptographers be represented as the vertices 
 $v_1, v_2, v_3$ in the complete graph $\mathbb{K}_3$. Each edge $e_{ij} = (v_i, v_j)$ represents a shared
 key and is assigned a bit value $k(e_{ij}) = 0$ for ``heads'' and $k(e_{ij}) = 1$ for ``tails''. Without loss of generality,
-let $v_1$ be the transmitting vertex, and let his message be $m_1 \in \{0, 1\}$ while $m_2, m_3 = 0$.
+let $v_1$ be the transmitting vertex, and let his message be $M_1 \in \{0, 1\}$ while $M_2, M_3 = 0$.
 Every vertex $v_i$ now creates its announcement value $a(v_i)$ by combining all associated shared keys $k(e_{ij})$
-as well as his message $m_i$ with XOR operations\footnote{
+as well as his message $M_i$ with XOR operations\footnote{
 The sum modulo two which is sometimes used in the literature is equivalent to XOR.}
 and broadcasts $a(v_i)$ to all other vertices in the network. Each $v_i$ is now able to
 reconstruct the originally transmitted message by calculating
-$m'_i = m_1 = a(v_1) \oplus \cdots \oplus a(v_3)$.
+$M'_i = M_1 = a(v_1) \oplus \cdots \oplus a(v_3)$.
 
-It may not be clear why $m'_i = m_1$, but it has an immediately intuitive explanation:
-Note that each shared key $e_{ij}$ is included in $m'_i$ exactly twice.
-Since $k(e_{ij}) = k(e_{ji})$ and $m_2, m_3 = 0$:
+It may not be clear why $M'_i = M_1$, but it has an immediately intuitive explanation:
+Note that each shared key $e_{ij}$ is included in $M'_i$ exactly twice.
+Since $k(e_{ij}) = k(e_{ji})$ and $M_2, M_3 = 0$:
 
 \begin{align*}
-m'_i &= a(v_1) \oplus a(v_2) \oplus a(v_3) \\
-     &= m_1 \oplus m_2 \oplus m_3 \\
+M'_i &= a(v_1) \oplus a(v_2) \oplus a(v_3) \\
+     &= M_1 \oplus M_2 \oplus M_3 \\
      & \oplus (k(e_{12}) \oplus k(e_{21})) \\
      & \oplus (k(e_{13}) \oplus k(e_{31})) \\
      & \oplus (k(e_{23}) \oplus k(e_{32})) = m_1
@@ -60,11 +63,84 @@ Again, $v_1$ does not gain any information about which person has paid the bill.
 A more general proof is available in \cite{journals/joc/Chaum88}.
 
 The presented protocol is easily generalized to a larger number of participants $n > 3$ by simply
-using the complete graph $\mathbb{K}_n$. Multi-bit message $m$ of length $|m| = j$
+using the complete graph $\mathbb{K}_n$. Multi-bit message $M$ of length $|M| = j$
 may be transmitted by running $j$ iterations of the \ac{DCProtocol}.  
 
-% Model
-% Possible issues: collusion, collisions, ...
+\subsection{Definitions}
+
+\subsubsection{Keysharing Graph}
+
+An undirected connected graph $G = (V, E)$ with $|V| = n$ vertices $v_i \in V$ and $|E| = m$ edges $e_{ij} \in E$,
+together with a function $k: E \rightarrow \{0, 1\}^p$ such that $k(e_{ij}) = k(e_{ji})$.
+Each vertex represents a participant, and each edge $e_{ij}$ corresponds to a shared key of length $p$ with the value
+$k(e_{ij})$.
+
+\subsubsection{Anonymity Set}
+
+Given a set of keys and their corresponding edges $K$ in a keysharing graph $G = (V, E)$, the anonymity set is the set of vertices in a connected component of $(V, E \setminus K)$ \cite{journals/joc/Chaum88}.
+
+% TODO: Remove this section?
+
+\subsection{Discussion}
+
+The \ac{DCProtocol} exhibits some very desirable properties. For instance, it is one of the very few
+protocols able to guarantee anonymity in the absence of a trusted party \cite{conf/eurocrypt/GolleJ04}.
+
+It provides unconditional security when using unconditional secrecy channels\footnote{
+If public key encryption is used, the \ac{DCProtocol} remains computationally secure.},
+i.e. it remains secure even in the presence of a
+strong attacker who can eavesdrop on all communications and has unlimited computational power.
+
+Since all participants transmit an identical volume of data in each round the \ac{DCProtocol}
+is completely immune to traffic analysis, unlike other anonymous messaging protocols such
+as \acp{MixNet} \cite{journals/cacm/Chaum81}.
+
+Malicious pooling of secret keys between two or more participants in order to
+gain information about the message transmitter is called collusion.
+Consider the anonymity set relative to the keysharing graph and the set of pooled key edges.
+The attacker gains only the knowledge which anonymity set the transmitter belongs to \cite{journals/joc/Chaum88}. To completely expose the transmitter, the attacker would
+have to own every single key shared by the transmitter.
+
+It is possible to alter the key-sharing graph to accomodate varying requirements to
+security and efficiency as long as the graph stays connected. Sparser graphs require fewer
+shared keys, but make exposure through collusion less difficult. In the extreme case of
+a ring topology in which each participant only shares keys with two other members, it is
+possible to expose a sender by collusion of his two neighbors.
+
+Besides sender-anonymity, it is also possible to achieve recipient-anonymity by
+encrypting the message with the intended recipient's public key and having each
+participant try to decrypt the message upon reception \cite{journals/joc/Chaum88}.
+
+Similarly, it is possible to tie a message to a pseudonym by using public key cryptography
+to sign it with the private key of a the desired pseudonym.
+
+However, important questions remain as well. So far, we have simply assumed secret shared keys
+to exist, but realistically these have to be generated and shared securely. Solutions
+again mostly revolve around public key crypography and will be discussed further in
+following sections.
+
+Likewise, we have assumed the group membership and structure (i.e. the key-sharing graph $G$)
+to remain static and known to all participants and ignored any issues of joining or leaving participants.
+
+Another challenge is the prevention of collisions between message transmissions.
+In this basic protocol, we have simply assumed that only a single participant transmits
+in each round. Obviously, in practice some way of collision avoidance or recovery must exist.
+Chaum suggests a simple retransmission scheme on detected collisions \cite{journals/joc/Chaum88}
+while the \ac{DCNetwork} implementation \Dissent uses a shuffle protocol to agree on
+a fixed transmission schedule \cite{journals/corr/abs-1004-3057}.
+
+Performance and scalability are major issues as well. A \ac{DCNetwork} of $n$ participants requires $\Omega(n^3)$ messages per round, which obviously does not scale well to larger groups.
+Much of the research on \acp{DCNetwork} has focused on this area; k-anonymous messaging \cite{von2003k},
+\Dissent \cite{journals/corr/abs-1004-3057} and \Verdict \cite{corrigan2013proactively}
+all attempt to make higher group memberships feasible.
+
+We have already briefly mentioned the effect of accidental transmission collisions; what about the
+case in which these are triggered on purpose by a malicious attacker intent on disrupting the
+protocol? It is very difficult for \acp{DCNetwork} to deal with these denial of service attacks,
+since one of their main goals is the guarantee of anonymity of senders. \citeauthor{journals/joc/Chaum88}
+proposed an elaborate system of traps and checks in order to detect end ultimately exclude
+disruptors from the protocol \cite{journals/joc/Chaum88}. \Dissent and \Verdict use the concept of
+proactive accountability in order to recover from these attacks more efficiently \cite{journals/corr/abs-1004-3057,corrigan2013proactively}.
 
 
 \section{Dealing with Disruptors}
