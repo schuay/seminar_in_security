@@ -142,9 +142,93 @@ proposed an elaborate system of traps and checks in order to detect end ultimate
 disruptors from the protocol \cite{journals/joc/Chaum88}. \Dissent and \Verdict use the concept of
 proactive accountability in order to recover from these attacks more efficiently \cite{journals/corr/abs-1004-3057,corrigan2013proactively}.
 
+\section{k-anonymous Messaging}
 
-\section{Dealing with Disruptors}
-\section{Achieving Scalability}
+% Definitions: k-anonymity, honest/faulty participant (dissent)
+% Equivalence member, node, participant
+
+k-anonymous message transmission is a modification of the \ac{DCProtocol} which was published in \citeyear{von2003k} by \citeauthor{von2003k}. Its main contributions are better scalability properties through relaxation
+of the core anonymity goals \cite{von2003k}.
+
+Unlike \acp{DCNetwork} which guarantee that an attacker monitoring all traffic cannot gain
+any information which of the $n$ participants was the sender, \citeauthor{von2003k} introduce
+the concept of sender and receiver k-anonymity. A protocol is said to be sender k-anonymous
+if each message sent by an honest party cannot be distinguished from those sent by at least $k - 1$
+other honest parties \cite{von2003k}. While full anonymity is required in some cases, in others
+k-anonymity suffices even for small values of $k$. For example, 2-anonymity and 3-anonymity would invalidate, respectively, a criminal and a civil charge in the United States legal system.
+
+The attack model consists of an adversary with polynomially bounded computational power
+who can monitor all communications and
+has control over up to $\frac{n}{2}$ participants\footnote{
+These faulty participants must be chosen once at the beginning of the protocol and may not
+be altered during its execution, i.e. the adversary is non-adaptive.}. The adversary may not affect
+the delivery of messages, and communications between participants are always delivered.
+A trusted public-key infrastructure is assumed to exist\footnote{Public-key cryptography is
+required for the special case of handling non-participation by faulty nodes which is not discussed further
+in this context.}.
+
+\subsection{Protocol}
+
+k-anonymous messaging relies on a combination of a secure multiparty sum algorithm
+together with zero-knowledge proofs and Pedersen commitments.
+
+A secure multiparty sum protocol allows a group of participants to collaboratively
+compute the sum of their respective inputs without learning anything about the
+inputs of other group members. Consider participants $P_1, \ldots, P_n$, each with
+inputs $X_i$ taken from the additive group of integers modulo m $\mathbb{Z}_m$.
+Each participant splits his input into $n$ values $s_{i,1}, \ldots, s_{i,n}$ such that $\sum_j s_{i,j} = X_i$
+and then sends element $s_{i,j}$ to participant $P_j$. Every $P_j$ then forms
+$s'_i = \sum_i s_{i,j}$, broadcasts $s'_i$, and computes the final sum $X = \sum_i s'_i = \sum_i X_i$.
+
+Zero-knowledge proofs allow a prover to convince a verifier of some statement while
+giving the verifier no additional knowledge. \citeauthor{chaum1987demonstrating}
+present a protocol demonstrating knowledge of the discrete logarithm of $x = h^r \mod p$
+where $q$ divides $p - 1$ and $p,q$ are prime in \cite{chaum1987demonstrating}.
+
+The Pederson commitment \cite{pedersen1992non} allows party $P$ to publically commit
+to a value $s$ by publishing $C_r(s)$ such that a) $P$ is bound to his commitment, i.e. he cannot later
+claim an $s' \neq s$ to be the original value, and b) the commitment does not reveal
+any information about $s$. This commitment scheme is based on the difficulty of computing discrete
+logarithms, and has the additionally useful property that $C_{r1}(s_1) \cdot C_{r2}(s_2) = C_{r1 + r2}(s_1 + s_2)$.
+
+In k-anonymous messaging, the group consisting of $n$ members is first partitioned
+into subgroups of size $M = O(k)$ such that with high probability $k$ members of each group
+are honest. This is accomplished by combining the original assumptation that at least
+$\frac{n}{2}$ members are honest with a Chernoff Bound to limit the probability that
+any subgroup contains less than $k$ honest members. The input of each member is
+a tuple $X_i = (m_i, g_i)$, where $m_i$ is the message to be transmitted, and
+$g_i$ identifies the group of the intended recipient. Each subgroup then runs
+$2M$ iterations of the multiparty sum protocol, using commitments to verify the
+correctness of the computed sums in order to counteract faulty members. Zero knowledge
+proofs are used to guarantee fairness in the sense that each participant may only transmit
+in exactly one of the $2M$ iterations. Further details of the protocol are available in
+\cite{von2003k}.
+
+\subsection{Discussion}
+
+Recall that in a \ac{DCNetwork}, the count of messages sent is $\Omega(n^3)$ in any case.
+In a k-anonymous messaging round with exclusively honest participants, $O(k^2)$ messages are transmitted.
+Faulty members are detected with high probability, and as such
+honest rounds are treated as the standard case in efficiency analysis.
+Note that $k$ is unrelated to $n$, vastly improving the protocol's scalability.
+On the other hand, it is possible to increase $k$ up to $n$ if needed.
+
+Unlike the base \ac{DCNetwork}, adversaries are restricted to polynomially bound computational
+power in order to facilitate the use of public-key cryptography, Pedersen commitments, and zero-knowledge
+proofs. Likewise, the number of faulty participants is limited to a constant fraction in order
+to bound the probability of any subgroup containing less than $k$ honest members.
+
+In contrast to the base \ac{DCProtocol}, k-anonymous messaging provides improved scalability and
+a novel way of detecting faulty members. As a trade-off, anonymity guarantees are relaxed
+and provide k-anonymity only. It is especially relevant for cases in which group sizes are high,
+and complete anonymity is not required. \citeauthor{von2003k} especially highlight use over the
+Internet as particularly efficient because of the low round complexity in a k-anonymity protocol.
+
+\section{Dissent}
+
+
+
+\section{Verdict}
 
 \section{Related Work}
 
