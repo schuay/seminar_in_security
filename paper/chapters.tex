@@ -84,7 +84,7 @@ Given a set of keys and their corresponding edges $K$ in a keysharing graph $G =
 \subsection{Discussion}
 
 The \ac{DCProtocol} exhibits some very desirable properties. For instance, it is one of the very few
-protocols able to guarantee anonymity in the absence of a trusted party \cite{conf/eurocrypt/GolleJ04}.
+protocols able to guarantee anonymity in the absence of a trusted party \cite{juels2004dining}.
 
 It provides unconditional security when using unconditional secrecy channels\footnote{
 If public key encryption is used, the \ac{DCProtocol} remains computationally secure.},
@@ -136,7 +136,7 @@ all attempt to make higher group memberships feasible.
 
 We have already briefly mentioned the effect of accidental transmission collisions; what about the
 case in which these are triggered on purpose by a malicious attacker intent on disrupting the
-protocol? It is very difficult for \acp{DCNetwork} to deal with these denial of service attacks,
+protocol? It is very difficult for \acp{DCNetwork} to deal with these \ac{DoS} attacks,
 since one of their main goals is the guarantee of anonymity of senders. \citeauthor{journals/joc/Chaum88}
 proposed an elaborate system of traps and checks in order to detect end ultimately exclude
 disruptors from the protocol \cite{journals/joc/Chaum88}. \Dissent and \Verdict use the concept of
@@ -226,7 +226,134 @@ Internet as particularly efficient because of the low round complexity in a k-an
 
 \section{Dissent}
 
+\Dissent is a fairly recent research contribution which provides an implementation of a modified \ac{DCNetwork},
+offering ``integrity, anonymity, and accountability in the face of strong traffic analysis and compromised members'' \cite{journals/corr/abs-1004-3057}. In this context, integrity means that each message either
+arrives at every honest group member, or all members know that the protocol round has failed. Anonymity
+requires that a group of $l \leq n - 2$ colluding attackers cannot match a message to its sender
+with better accuracy than random guessing. Finally, the protocol is accountable if no honest member is
+ever wrongfully accused, and in the case of disruption every honest member exposes at least one faulty member.
 
+Again, the attack model assumes a very strong attacker with polynomially bounded computational
+power able to eavesdrop on all traffic and corrupt any subset of protocol participants.
+
+Topics such as group membership, round management and public key systems are outside
+the scope of this topics and as such several simplifying assumptions are made: group membership is closed
+and known to all, members
+know when to start a round and can distinguish between rounds, all members participate in all rounds
+and do not go silent, and all members have public encryption as well as signing keys.
+
+\subsection{Notation}
+
+Public/private key pairs are referred to as $(x_i, y_i)$, where $x_i$ denotes the private
+key while $y_i$ denotes the public key.
+
+\subsection{Protocol}
+
+\Dissent uses two subprotocols: the first, called the shuffle protocol, is used to assign
+transmission slot reservations to each group member. The second, called the bulk protocol,
+facilitates the subsequent bulk transmission of all messages.
+
+\subsubsection{Shuffle Protocol}
+
+The shuffle protocol is based on \cite{brickell2006efficient} but refines this approach
+with a go/no go phase in order to counteract \ac{DoS} attacks by faulty members.
+
+The goal of this protocol is to allow each participant to create a transmission slot reservation
+such that each participant is assigned exactly one slot while not learning anything about
+the assignments of any other participant.
+
+Initially, each participant has a primary encryption key pair $(x_i, y_i)$, a signing key pair
+$(u_i, v_i)$, and a message $m_i$. The length of all messages is fixed to $L$.
+
+%TODO possible conflict session nonce n_R, group size n.
+
+All members must have agreed on a session nonce $n_R$, a common ordering of all members
+$1 \ldots n$, and every participant's public encryption and signing keys. \citeauthor{journals/corr/abs-1004-3057} suggest achieving this agreement via techniques
+proposed in \cite{lamport1998part,castro1999practical}.
+
+Every participant maintains a tamper-evident log as in \cite{haeberlen2007peerreview}
+containing each message sent and received. During each phase $\phi$ of the shuffle protocol,
+each honest member $i$ sends at most one message $\mu_{i\phi}$.
+Every $\mu_{i\phi}$ contains a hash $h_{i\phi}$ of the current log head in addition to other data
+and is signed with $i$'s signing key.
+
+Informally, the protocol now proceeds in $5$ ($ + 1$) phases:
+
+\begin{itemize}
+\item \emph{Secondary Key Generation.}
+      Each member $i$ generates a secondary encryption key pair $(w_i, z_i)$ and broadcasts $z_i$.
+\item \emph{Data Submission.}
+      Each member $i$ encrypts his message $m_i$ in $n$ layers with all secondary public encryption keys,
+      starting with $z_n$ and ending with $z_1$, resulting in $C'_i$.  $C'_i$ is then further encrypted
+      with all primary public keys ($y_n, \ldots, y_1$), resulting in $C_i$ which is subsequently
+      broadcasted to member $1$. 
+\item \emph{Anonymization.}
+      This phase consists of $n$ subphases. In subphase $i$, member $i$ receives all elements,
+      places them in a vector $\vec{C_0}$, randomly permutes its elements, strips one layer of
+      encryption, and sends the resulting elements to member $i + 1$. The resulting vector $\vec{C_n}$
+      is broadcast to the entire group.
+\item \emph{Verification.}
+      $\vec{C_n}$ should now consist of a permutation of all $C'_i$. Each member $i$ verifies that
+      his $C'_i$ is present, and sets the $GO_i$ flag accordingly. $GO_i$ is then broadcast
+      together with a hash over all broadcast messages received or sent during the previous phases.
+      If all members receive the go ahead together with the expected broadcast message log hash
+      from all other members, we proceed to the final stage.
+\item \emph{Decryption.}
+      Each member $i$ broadcasts his secondary private key $w_i$, and finally decrypts the remaining
+      layers of encryption on $\vec{C_n}$ to receive a permutation of $m_i$.
+\item \emph{Blame.}
+      If a failure occurs at any point during this protocol, participants use their stored
+      log to replay actions by all other players and expose faulty members.
+\end{itemize}
+
+\subsubsection{Bulk Protocol}
+
+This phase relies on both the shuffle protocol and a modification of the \ac{DCProtocol}
+to transmit all messages $m_i$ to the group while preserving integrity, anonymity and accountability.
+
+Contrary to the shuffle protocol, messages do not have a fixed length. Instead, each member
+$i$ has a message $m_i$ together with its length $L_i$. Like before, every member also holds encryption and
+signing key pairs as well as knowing the session nonce and a common member ordering.
+
+The protocol proceeds in phases:
+
+\begin{itemize}
+\item \emph{Message Descriptor Generation.}
+      In this phase, each member $i$ generates a shared key $C_{ij}$ for each other member $j \neq i$
+      by choosing a seed value $s_{ij}$ and using a pseudorandom number generator \cite{stinson2006cryptography} to generate a
+      key sequence of length $L_i$. The ciphertext $C_{ii}$ is then generated by
+      XORing the message $m_i$ together with all shared keys $C_{ij}$. Finally, the message descriptor
+      $d_i$ is formed by combining $L_i, \text{HASH}(m_i)$ with the vector $\vec{H_i}$ of all secret key
+      hashes as well as the vector $\vec{S_i}$ containing all seeds $s_{ij}$ encrypted with the respective
+      public key $y_j$.
+\item \emph{Message Descriptor Shuffle.}
+      The shuffle protocol is now executed with each participant using its message descriptor
+      as the input. Upon conclusion, each member is assigned a transmission slot $\pi(i)$.
+\item \emph{Data transmission.}
+      Every participant $j$ can now decode $s_ij$ and use it to generate the shared key $C_ij$ which
+      is subsequently verified using $\text{HASH}(C_{ij})$. All $C_ij$ are finally signed broadcast in the order
+      of $\pi$.
+\item \emph{Message Recovery.}
+      All messages may now be recovered by simply XORing all received messages from the last round for each phase: $m_i = C_{i1} \oplus \ldots \oplus C_{in}$. Received ciphertexts $C_{ij}$ can be verified
+      through their hashes taken from the $\vec{H_i}$ vector in the message descriptor.
+\item \emph{Blame.}
+      In case any failure occurs during previous phases, the protocol is aborted and the blame phase is entered.
+      Members whose message was corrupted broadcast an accusation of member $j$ together with the
+      associated seed $s_{ij}$ through the shuffle protocol.
+      All other participants can then replay the encryption process to check whether $j$
+      is faulty or not.
+\end{itemize}
+
+\subsection{Discussion}
+% TODO: Maybe expand this section?
+The total complexity of a protocol run is $O(n^2) + \sum_i L_i$ in the normal case
+and $O(n^3) + \sum_i L_i$ with faulty members. Unlike k-anonymous messaging,
+\Dissent provides provable accountability, faulty members are always exposed, and full anonymity
+within the group is guaranteed.
+
+A working prototype implementation demonstrates the feasibility of this protocol in practice
+for small to moderate group sizes, scaling from a runtime of 1 minute in a 4-member group
+to 14 minutes in a 40-member group \cite{journals/corr/abs-1004-3057}.
 
 \section{Verdict}
 
