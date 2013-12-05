@@ -140,7 +140,7 @@ protocol? It is very difficult for \acp{DCNetwork} to deal with these \ac{DoS} a
 since one of their main goals is the guarantee of anonymity of senders. \citeauthor{journals/joc/Chaum88}
 proposed an elaborate system of traps and checks in order to detect end ultimately exclude
 disruptors from the protocol \cite{journals/joc/Chaum88}. \Dissent and \Verdict use the concept of
-proactive accountability in order to recover from these attacks more efficiently \cite{journals/corr/abs-1004-3057,corrigan2013proactively}.
+accountability in order to recover from these attacks more efficiently \cite{journals/corr/abs-1004-3057,corrigan2013proactively}.
 
 \section{k-anonymous Messaging}
 
@@ -357,11 +357,63 @@ to 14 minutes in a 40-member group \cite{journals/corr/abs-1004-3057}.
 
 \section{Verdict}
 
+\Verdict is one of the most recent developments in the field of \acp{DCNetwork}.
+It extends the mechanisms used in \Dissent to provide proactive accountability, i.e.
+that every participant can verify at any time that messages by other participants are well-formed \cite{corrigan2013proactively}.
+
+To achieve this, \Verdict builds on techniques first proposed in \cite{juels2004dining}
+to attach cryptographic zero-knowledge correctness proofs to any messages it sends.
+In addition to the bilinear maps pairing scheme, \Verdict also offers two alternatives
+based on the ElGamal public-key cryptosystem \cite{ElGamal1985}.
+
+Instead of the peer-to-peer approach taken by most earlier \acp{DCNetwork}
+and similar to a refined version of \Dissent \cite{wolinsky2012dissent},
+\Verdict uses a client-server architecture to lighten the communications load
+on each participant. In this model, each client communicates with at least one server,
+while each server communicates with all other servers. In this model, security
+is maintained as long as at least a single server is honest.
+
+Finally, due to the performance overhead of proactively accountable messages,
+\Verdict offers a hybrid mode in which the standard XOR-based \ac{DCProtocol}
+is employed by default, only switching to the verifiable primitive when under attack.
+
+A detailed description of the protocol is not provided due to both space constraints and
+the complexity of the subject matter. A full description is available in \cite{corrigan2013proactively}.
+
+\subsection{Discussion}
+
+Since \Verdict is basically \Dissent with the shuffle accusal protocol replaced by
+the verifiable \ac{DCNetwork} primitive, its assumptions and attack model are anologous.
+
+In comparison to \Dissent, the main advantages \Verdict offers are 
+improved scalability and efficiency properties when under attack. The time taken to
+identify faulty participants in a 1000-node group is reduced from 20 minutes to 26 seconds \cite{corrigan2013proactively}.
+
+
 \section{Related Work}
 
-This sections contains further publications similar to this topic. However, it can also be used to distinguish this paper to other publications.
+Some early developments in the field of \acp{DCNetwork} were left unmentioned in this paper:
+\cite{waidner1989dining} exposes and presents solutions to several weaknesses in the
+original protocol as proposed in \cite{journals/joc/Chaum88} as well as removing the assumption
+of a reliable network. In \cite{bos1990detection}, \citeauthor{bos1990detection} present a system of sender slot reservations.
 
-Related work can also be used to give the reader references to publications which give more details about a topic.
+Herbivore \cite{goel2003herbivore} provides anonymous communications through a variant of the
+\ac{DCProtocol} with small, dynamic groups. Honest participants attempt to avoid jamming by
+leaving disrupted groups. However, powerful attackers can exploit this to disrupt exactly those groups
+which are only partially corrupted, making participants likely to settle in completely corrupted subgroups.
+Like k-anonymous networks, Herbivore scales well due to its low group sizes.
+
+Mix-Nets are another form of anonymity networks, initially described by \citeauthor{journals/cacm/Chaum81}
+\cite{journals/cacm/Chaum81}. Messages by participants are shuffled through a series of mix servers
+in order to hide the original sender. In contrast to \acp{DCNetwork}, Security in Mix-Nets requires
+at least a constant fraction of nodes is honest. Mix-Nets are susceptible to traffic analysis attacks,
+in which attackers able gain information about a system by monitor its traffic.
+TOR \cite{conf/uss/DingledineMS04} is a Mix-Net variant and one of the most well-known anonymity networks
+in use today.
+
+\section{Conclusion}
+
+This summarizes what has been done and concludes based on the results. A description of future research should also be included.
 
 \begin{comment}
 Important points:
@@ -419,7 +471,3 @@ Random notes:
 * Herbivore provides anonymity only within small subgroups
 
 \end{comment}
-
-\section{Conclusion}
-
-This summarizes what has been done and concludes based on the results. A description of future research should also be included.
