@@ -1,9 +1,32 @@
 \section{Introduction}
 
-The introduction should contain the background of the problem, why it is important, and what others have done to solve this problem. All related existing work should be properly described and referenced. The proposed solution should be briefly described, with explanations of how it is different from, and superior to, existing solutions. The last paragraph should be a summary of what will be described in each subsequent section of the paper.
-\cite{waidner1989dining}
+Anonymous communications are a vital tool in protecting privacy, the rights of minorities,
+freedom of speech, and the organization of resistance against repressive regimes.
 
-\section{The Dining Cryptographers Protocol}
+In many cases, adversaries have access to or even control of the basic communication
+links between participants. Unfortunately, Mix-Nets \cite{journals/cacm/Chaum81} and 
+widely used derivatives such as TOR \cite{conf/uss/DingledineMS04} are vulnerable to traffic
+analysis attacks in which adversaries monitor network links in order to gain information
+about communication participants \cite{murdoch2005low}. \acp{DCNetwork} on the other hand
+are able to guarantee anonymity even in the face of strong traffic analysis.
+
+Of course providing such strong guarantees also comes with a cost, and \acp{DCNetwork}
+have their own set of inherent challenges. In order to defeat traffic analysis,
+each participant must at the very least transmit an identical amount of data during each round,
+leading to substantial scalability issues. Likewise, the \ac{DCNetwork}'s strong anonymity guarantees result
+in difficulties in detecting and ejecting internal attackers within the network.
+
+Research in \acp{DCNetwork} has mostly focused on these areas, and in this paper we
+present a selection of approaches attempting to improve both scalability and handling of disruptors.
+In Section \ref{sec:dining_cryptographers_protocol}, we give an introduction
+to the \ac{DCProtocol} and it's main properties. Section \ref{sec:k-anonymous_messaging} 
+covers k-anonymous messaging, a \ac{DCProtocol} variant which obtains better scalability
+through relaxed anonymity guarantees. In Section \ref{sec:dissent} we discuss a practical
+\ac{DCProtocol} implementation called \Dissent, offering a retroactive blame mechanism.
+Finally, its successor \Verdict is briefly discussed in Section \ref{sec:verdict}. \Verdict
+improves on \Dissent's scalability through proactive accountability and a hybrid mode of operation.
+
+\section{The Dining Cryptographers Protocol} \label{sec:dining_cryptographers_protocol}
 
 % Adversary, model, assumptions, guarantees, goals...
 % static and public key sharing graph, reliable network, honest participants?
@@ -83,7 +106,7 @@ Given a set of keys and their corresponding edges $K$ in a keysharing graph $G =
 
 \subsection{Discussion}
 
-The \ac{DCProtocol} exhibits some very desirable properties. For instance, it is one of the very few
+The \ac{DCProtocol} exhibits some very desirable properties. For instance, it is one of the few
 protocols able to guarantee anonymity in the absence of a trusted party \cite{juels2004dining}.
 
 It provides unconditional security when using unconditional secrecy channels\footnote{
@@ -142,7 +165,7 @@ proposed an elaborate system of traps and checks in order to detect end ultimate
 disruptors from the protocol \cite{journals/joc/Chaum88}. \Dissent and \Verdict use the concept of
 accountability in order to recover from these attacks more efficiently \cite{journals/corr/abs-1004-3057,corrigan2013proactively}.
 
-\section{k-anonymous Messaging}
+\section{k-anonymous Messaging} \label{sec:k-anonymous_messaging}
 
 % Definitions: k-anonymity, honest/faulty participant (dissent)
 % Equivalence member, node, participant
@@ -224,7 +247,7 @@ and provide k-anonymity only. It is especially relevant for cases in which group
 and complete anonymity is not required. \citeauthor{von2003k} especially highlight use over the
 Internet as particularly efficient because of the low round complexity in a k-anonymity protocol.
 
-\section{Dissent}
+\section{Dissent} \label{sec:dissent}
 
 \Dissent is a fairly recent research contribution which provides an implementation of a modified \ac{DCNetwork},
 offering ``integrity, anonymity, and accountability in the face of strong traffic analysis and compromised members'' \cite{journals/corr/abs-1004-3057}. In this context, integrity means that each message either
@@ -355,7 +378,7 @@ A working prototype implementation demonstrates the feasibility of this protocol
 for small to moderate group sizes, scaling from a runtime of 1 minute in a 4-member group
 to 14 minutes in a 40-member group \cite{journals/corr/abs-1004-3057}.
 
-\section{Verdict}
+\section{Verdict} \label{sec:verdict}
 
 \Verdict is one of the most recent developments in the field of \acp{DCNetwork}.
 It extends the mechanisms used in \Dissent to provide proactive accountability, i.e.
@@ -402,6 +425,8 @@ Herbivore \cite{goel2003herbivore} provides anonymous communications through a v
 leaving disrupted groups. However, powerful attackers can exploit this to disrupt exactly those groups
 which are only partially corrupted, making participants likely to settle in completely corrupted subgroups.
 Like k-anonymous networks, Herbivore scales well due to its low group sizes.
+
+% Crowds?
 
 Mix-Nets are another form of anonymity networks, initially described by \citeauthor{journals/cacm/Chaum81}
 \cite{journals/cacm/Chaum81}. Messages by participants are shuffled through a series of mix servers
