@@ -89,20 +89,6 @@ The presented protocol is easily generalized to a larger number of participants 
 using the complete graph $\mathbb{K}_n$. Multi-bit message $M$ of length $|M| = j$
 may be transmitted by running $j$ iterations of the \ac{DCProtocol}.  
 
-\subsection{Definitions}
-
-\subsubsection{Keysharing Graph}
-
-An undirected connected graph $G = (V, E)$ with $|V| = n$ vertices $v_i \in V$ and $|E| = m$ edges $e_{ij} \in E$,
-together with a function $k: E \rightarrow \{0, 1\}^p$ such that $k(e_{ij}) = k(e_{ji})$.
-Each vertex represents a participant, and each edge $e_{ij}$ corresponds to a shared key of length $p$ with the value
-$k(e_{ij})$.
-
-\subsubsection{Anonymity Set}
-
-Given a set of keys and their corresponding edges $K$ in a keysharing graph $G = (V, E)$, the anonymity set is the set of vertices in a connected component of $(V, E \setminus K)$ \cite{journals/joc/Chaum88}.
-
-% TODO: Remove this section?
 
 \subsection{Discussion}
 
@@ -120,7 +106,11 @@ as \acp{MixNet} \cite{journals/cacm/Chaum81}.
 
 Malicious pooling of secret keys between two or more participants in order to
 gain information about the message transmitter is called collusion.
-Consider the anonymity set relative to the keysharing graph and the set of pooled key edges.
+Consider the anonymity set\footnote{Given a set of keys and their corresponding edges $K$ in a keysharing graph $G = (V, E)$, the anonymity set is the set of vertices in a connected component of $(V, E \setminus K)$ \cite{journals/joc/Chaum88}.}
+relative to the keysharing graph\footnote{An undirected connected graph $G = (V, E)$ with $|V| = n$ vertices $v_i \in V$ and $|E| = m$ edges $e_{ij} \in E$,
+together with a function $k: E \rightarrow \{0, 1\}^p$ such that $k(e_{ij}) = k(e_{ji})$.
+Each vertex represents a participant, and each edge $e_{ij}$ corresponds to a shared key of length $p$ with the value
+$k(e_{ij})$.} and the set of pooled key edges.
 The attacker gains only the knowledge which anonymity set the transmitter belongs to \cite{journals/joc/Chaum88}. To completely expose the transmitter, the attacker would
 have to own every single key shared by the transmitter.
 
