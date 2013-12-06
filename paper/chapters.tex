@@ -3,14 +3,14 @@
 Anonymous communications are a vital tool in protecting privacy, the rights of minorities,
 freedom of speech, and the organization of resistance against repressive regimes.
 
-In many cases, adversaries have access to or even control of the basic communication
+In many cases, adversaries have access to, or even control of the basic communication
 links between participants. Unfortunately, \acp{MixNet} \cite{journals/cacm/Chaum81} and 
 widely used derivatives such as \Tor \cite{conf/uss/DingledineMS04} are vulnerable to traffic
 analysis attacks in which adversaries monitor network links in order to gain information
 about communication participants \cite{murdoch2005low}. \acp{DCNetwork} on the other hand
 are able to guarantee anonymity even in the face of strong traffic analysis.
 
-Of course providing such strong guarantees also comes with a cost, and \acp{DCNetwork}
+Of course, providing such strong guarantees also comes with a cost, and \acp{DCNetwork}
 have their own set of inherent challenges. In order to defeat traffic analysis,
 each participant must at the very least transmit an identical amount of data during each round,
 leading to substantial scalability issues. Likewise, the \ac{DCNetwork}'s strong anonymity guarantees result
@@ -19,7 +19,7 @@ in difficulties in detecting and ejecting internal attackers within the network.
 Research in \acp{DCNetwork} has mostly focused on these areas, and in this paper we
 present a selection of approaches attempting to improve both scalability and handling of disruptors.
 In Section \ref{sec:dining_cryptographers_protocol}, we give an introduction
-to the \ac{DCProtocol} and it's main properties. Section \ref{sec:k-anonymous_messaging} 
+to the \ac{DCProtocol} and its main properties. Section \ref{sec:k-anonymous_messaging} 
 covers k-anonymous messaging, a \ac{DCProtocol} variant which obtains better scalability
 through relaxed anonymity guarantees. In Section \ref{sec:dissent} we discuss a practical
 \ac{DCProtocol} implementation called \Dissent, offering a retroactive blame mechanism.
@@ -37,7 +37,7 @@ The initial idea of \acp{DCNetwork} was first proposed by \citeauthor{journals/j
 at Crypto 1984 and subsequently published in \citeyear{journals/joc/Chaum88} \cite{journals/joc/Chaum88}.
 
 \citeauthor{journals/joc/Chaum88} introduces the protocol with the following demonstration:
-Consider three cryptographers seated around a round table at a restaurant.
+Consider three cryptographers seated around a table at a restaurant.
 After finishing dinner, they are informed that their check has already been paid\footnote{
 We assume that the check has been paid exactly once.}.
 Baffled, they wish to determine whether the payer was one of them (in which case
@@ -55,9 +55,9 @@ Otherwise, they determine that their dinner was paid by the NSA.
 We now formalize this scenario: let the cryptographers be represented as the vertices 
 $v_1, v_2, v_3$ in the complete graph $\mathbb{K}_3$. Each edge $e_{ij} = (v_i, v_j)$ represents a shared
 key and is assigned a bit value $k(e_{ij}) = 0$ for ``heads'' and $k(e_{ij}) = 1$ for ``tails''. Without loss of generality,
-let $v_1$ be the transmitting vertex, and let his message be $M_1 \in \{0, 1\}$ while $M_2, M_3 = 0$.
+let $v_1$ be the transmitting vertex, and let its message be $M_1 \in \{0, 1\}$ while $M_2, M_3 = 0$.
 Every vertex $v_i$ now creates its announcement value $a(v_i)$ by combining all associated shared keys $k(e_{ij})$
-as well as his message $M_i$ with XOR operations\footnote{
+as well as its message $M_i$ with XOR operations\footnote{
 The sum modulo two which is sometimes used in the literature is equivalent to XOR.}
 and broadcasts $a(v_i)$ to all other vertices in the network. Each $v_i$ is now able to
 reconstruct the originally transmitted message by calculating
@@ -72,14 +72,14 @@ M'_i &= a(v_1) \oplus a(v_2) \oplus a(v_3) \\
      &= M_1 \oplus M_2 \oplus M_3
      \oplus (k(e_{12}) \oplus k(e_{21})) \\
      & \oplus (k(e_{13}) \oplus k(e_{31})) 
-     \oplus (k(e_{23}) \oplus k(e_{32})) = m_1
+     \oplus (k(e_{23}) \oplus k(e_{32})) = M_1
 \end{align*}
 
 The \ac{DCProtocol} is unconditionally secure if each member is honest and performs the
 protocol correctly. A short proof sketch considers a nonpaying cryptographer $v_1$
 wishing to expose the person who paid. In the first case both of $v_1$'s shared keys are the same
-(i.e. $a(v_1) = 0$) while $a(v_2) = 1$ and $a(v_3) = 0$. If $k(e_23) = k(e_12) = k(e_13)$, then $v_2$
-is the payer, with $v_3$ paying otherwise. Since $k(e_23)$ takes each value with a probability
+(i.e. $a(v_1) = 0$) while $a(v_2) = 1$ and $a(v_3) = 0$. If $k(e_{23}) = k(e_{12}) = k(e_{13})$, then $v_2$
+is the payer, with $v_3$ paying otherwise. Since $k(e_{23})$ takes each value with a probability
 of $0.5$, $v_1$ also does not gain any information. In the second case, let $e_{12} = 1, e_{13} = 0, \text{ and } a(v_1) = 1$. If $a(v_2) = a(v_3) = 1$, the payer is $v_2$ if $e_{23} = 1$ and $v_3$ otherwise.
 Likewise, if $a(v_2) = a(v_3) = 0$ then the payer is $v_2$ if $e_{23} = 0$ and $v_3$ otherwise.
 Again, $v_1$ does not gain any information about which person has paid the bill.
@@ -205,10 +205,10 @@ $s'_i = \sum_i s_{i,j}$, broadcasts $s'_i$, and computes the final sum $X = \sum
 
 Zero-knowledge proofs allow a prover to convince a verifier of some statement while
 giving the verifier no additional knowledge. \citeauthor{chaum1987demonstrating}
-present a protocol demonstrating knowledge of the discrete logarithm of $x = h^r \mod p$
+present a protocol that demonstrates knowledge of the discrete logarithm of $x = h^r \mod p$
 where $q$ divides $p - 1$ and $p,q$ are prime in \cite{chaum1987demonstrating}.
 
-The Pederson commitment \cite{pedersen1992non} allows party $P$ to publically commit
+The Pedersen commitment \cite{pedersen1992non} allows party $P$ to publically commit
 to a value $s$ by publishing $C_r(s)$ such that a) $P$ is bound to his commitment, i.e. he cannot later
 claim an $s' \neq s$ to be the original value, and b) the commitment does not reveal
 any information about $s$. This commitment scheme is based on the difficulty of computing discrete
@@ -259,8 +259,8 @@ ever wrongfully accused, and in the case of disruption every honest member expos
 Again, the attack model assumes a very strong attacker with polynomially bounded computational
 power able to eavesdrop on all traffic and corrupt any subset of protocol participants.
 
-Topics such as group membership, round management and public key systems are outside
-the scope of this topics and as such several simplifying assumptions are made: group membership is closed
+Group membership, round management and public key systems are outside
+the scope of this topic and as such several simplifying assumptions are made: group membership is closed
 and known to all, members
 know when to start a round and can distinguish between rounds, all members participate in all rounds
 and do not go silent, and all members have public encryption as well as signing keys.
@@ -311,12 +311,12 @@ Informally, the protocol now proceeds in $5$ ($ + 1$) phases:
       Each member $i$ encrypts his message $m_i$ in $n$ layers with all secondary public encryption keys,
       starting with $z_n$ and ending with $z_1$, resulting in $C'_i$.  $C'_i$ is then further encrypted
       with all primary public keys ($y_n, \ldots, y_1$), resulting in $C_i$ which is subsequently
-      broadcasted to member $1$. 
+      sent to member $1$. 
       
 \emph{Anonymization.}
       This phase consists of $n$ subphases. In subphase $i$, member $i$ receives all elements,
       places them in a vector $\vec{C_0}$, randomly permutes its elements, strips one layer of
-      encryption, and sends the resulting elements to member $i + 1$. The resulting vector $\vec{C_n}$
+      encryption, and sends the resulting elements to member $i + 1$. The final vector $\vec{C_n}$
       is broadcast to the entire group.
       
 \emph{Verification.}
@@ -350,7 +350,7 @@ The protocol proceeds in phases:
       by choosing a seed value $s_{ij}$ and using a pseudorandom number generator \cite{stinson2006cryptography} to generate a
       key sequence of length $L_i$. The ciphertext $C_{ii}$ is then generated by
       XORing the message $m_i$ together with all shared keys $C_{ij}$. Finally, the message descriptor
-      $d_i$ is formed by combining $L_i, \text{HASH}(m_i)$ with the vector $\vec{H_i}$ of all secret key
+      $d_i$ is formed by combining $L_i$ and $\text{HASH}(m_i)$ with the vector $\vec{H_i}$ of all secret key
       hashes as well as the vector $\vec{S_i}$ containing all seeds $s_{ij}$ encrypted with the respective
       public key $y_j$.
 
@@ -359,9 +359,8 @@ The protocol proceeds in phases:
       as the input. Upon conclusion, each member is assigned a transmission slot $\pi(i)$.
 
 \emph{Data transmission.}
-      Every participant $j$ can now decode $s_ij$ and use it to generate the shared key $C_ij$ which
-      is subsequently verified using $\text{HASH}(C_{ij})$. All $C_ij$ are finally signed broadcast in the order
-      of $\pi$.
+      Every participant $j$ can now decode $s_{ij}$ and use it to generate the shared key $C_{ij}$ which
+      is subsequently verified using $\text{HASH}(C_{ij})$. All $C_{ij}$ are finally signed broadcast in the order of $\pi$.
       
 \emph{Message Recovery.}
       All messages may now be recovered by simply XORing all received messages from the last round for each phase: $m_i = C_{i1} \oplus \ldots \oplus C_{in}$. Received ciphertexts $C_{ij}$ can be verified
@@ -393,14 +392,14 @@ that every participant can verify at any time that messages by other participant
 
 To achieve this, \Verdict builds on techniques first proposed in \cite{juels2004dining}
 to attach cryptographic zero-knowledge correctness proofs to any messages it sends.
-In addition to the bilinear maps pairing scheme, \Verdict also offers two alternatives
-based on the ElGamal public-key cryptosystem \cite{ElGamal1985}.
+In addition to the bilinear maps pairing scheme, \Verdict also offers two alternative
+implementations based on the ElGamal public-key cryptosystem \cite{ElGamal1985}.
 
 Instead of the peer-to-peer approach taken by most earlier \acp{DCNetwork}
 and similar to a refined version of \Dissent \cite{wolinsky2012dissent},
 \Verdict uses a client-server architecture to lighten the communications load
 on each participant. In this model, each client communicates with at least one server,
-while each server communicates with all other servers. In this model, security
+while each server communicates with all other servers. Security
 is maintained as long as at least a single server is honest.
 
 Finally, due to the performance overhead of proactively accountable messages,
@@ -408,7 +407,7 @@ Finally, due to the performance overhead of proactively accountable messages,
 is employed by default, only switching to the verifiable primitive when under attack.
 
 A detailed description of the protocol is not provided due to both space constraints and
-the complexity of the subject matter. A full description is available in \cite{corrigan2013proactively}.
+the complexity of the subject matter. Further information is available in \cite{corrigan2013proactively}.
 
 \subsection{Discussion}
 
@@ -425,7 +424,7 @@ identify faulty participants in a 1000-node group is reduced from 20 minutes to 
 Some early developments in the field of \acp{DCNetwork} were left unmentioned in this paper:
 \cite{waidner1989dining} exposes and presents solutions to several weaknesses in the
 original protocol as proposed in \cite{journals/joc/Chaum88} as well as removing the assumption
-of a reliable network. In \cite{bos1990detection}, \citeauthor{bos1990detection} present a system of sender slot reservations.
+of a reliable network. In \cite{bos1990detection}, \citeauthor{bos1990detection} present a system of creating sender slot reservations.
 
 Herbivore \cite{goel2003herbivore} provides anonymous communications through a variant of the
 \ac{DCProtocol} with small, dynamic groups. Honest participants attempt to avoid jamming by
@@ -437,8 +436,8 @@ Like k-anonymous networks, Herbivore scales well due to its low group sizes.
 
 \acp{MixNet} are another form of anonymity networks, initially described by \citeauthor{journals/cacm/Chaum81}
 \cite{journals/cacm/Chaum81}. Messages by participants are shuffled through a series of mix servers
-in order to hide the original sender. In contrast to \acp{DCNetwork}, Security in Mix-Nets requires
-at least a constant fraction of nodes is honest. \acp{MixNet} are susceptible to traffic analysis attacks,
+in order to hide the original sender. In contrast to \acp{DCNetwork}, security in Mix-Nets requires
+at least a constant fraction of nodes to be honest. \acp{MixNet} are susceptible to traffic analysis attacks,
 in which attackers able gain information about a system by monitor its traffic.
 \Tor \cite{conf/uss/DingledineMS04} is a \ac{MixNet} variant and one of the most well-known anonymity networks
 in use today.
