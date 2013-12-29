@@ -180,10 +180,10 @@ together with zero-knowledge proofs and Pedersen commitments.
 A secure multiparty sum protocol allows a group of participants to collaboratively
 compute the sum of their respective inputs without learning anything about the
 inputs of other group members. Consider participants $P_1, \ldots, P_n$, each with
-inputs $X_i$ taken from the additive group of integers modulo m $\mathbb{Z}_m$.
+inputs $X_i$ taken from the additive group of integers modulo $m$ $\mathbb{Z}_m$.
 Each participant splits his input into $n$ values $s_{i,1}, \ldots, s_{i,n}$ such that $\sum_j s_{i,j} = X_i$
 and then sends element $s_{i,j}$ to participant $P_j$. Every $P_j$ then forms
-$s'_i = \sum_i s_{i,j}$, broadcasts $s'_i$, and computes the final sum $X = \sum_i s'_i = \sum_i X_i$.
+$s'_j = \sum_i s_{i,j}$, broadcasts $s'_j$, and computes the final sum $X = \sum_j s'_j = \sum_i X_i$.
 
 Zero-knowledge proofs allow a prover to convince a verifier of some statement while
 giving the verifier no additional knowledge. \citeauthor{chaum1987demonstrating}
@@ -194,11 +194,11 @@ The Pedersen commitment \cite{pedersen1992non} allows party $P$ to publically co
 to a value $s$ by publishing $C_r(s)$ such that a) $P$ is bound to his commitment, i.e. he cannot later
 claim an $s' \neq s$ to be the original value, and b) the commitment does not reveal
 any information about $s$. This commitment scheme is based on the difficulty of computing discrete
-logarithms, and has the additionally useful property that $C_{r1}(s_1) \cdot C_{r2}(s_2) = C_{r1 + r2}(s_1 + s_2)$.
+logarithms.
 
 In k-anonymous messaging, the group consisting of $n$ members is first partitioned
 into subgroups of size $M = O(k)$ such that with high probability $k$ members of each group
-are honest. This is accomplished by combining the original assumptation that at least
+are honest. This is accomplished by combining the original assumption that at least
 $\frac{n}{2}$ members are honest with a Chernoff Bound to limit the probability that
 any subgroup contains less than $k$ honest members. The input of each member is
 a tuple $X_i = (m_i, g_i)$, where $m_i$ is the message to be transmitted, and
@@ -223,7 +223,7 @@ power in order to facilitate the use of public-key cryptography, Pedersen commit
 proofs. Likewise, the number of faulty participants is limited to a constant fraction in order
 to bound the probability of any subgroup containing less than $k$ honest members.
 
-In contrast to the base \ac{DCProtocol}, k-anonymous messaging provides improved scalability and
+In contrast to the base \ac{DCProtocol}, k-anonymous messaging offers improved scalability and
 a novel way of detecting faulty members. As a trade-off, anonymity guarantees are relaxed
 and provide k-anonymity only. It is especially relevant for cases in which group sizes are high,
 and complete anonymity is not required. \citeauthor{von2003k} especially highlight use over the
@@ -238,6 +238,8 @@ requires that a group of $l \leq n - 2$ colluding attackers cannot match a messa
 with better accuracy than random guessing. Finally, the protocol is accountable if no honest member is
 ever wrongfully accused, and in the case of disruption every honest member exposes at least one faulty member.
 
+% TODO Drop these definitions to save space?
+
 Again, the attack model assumes a very strong attacker with polynomially bounded computational
 power able to eavesdrop on all traffic and corrupt any subset of protocol participants.
 
@@ -251,15 +253,6 @@ and do not go silent, and all members have public encryption as well as signing 
 transmission slot reservations to each group member. The second, called the bulk protocol,
 facilitates the subsequent bulk transmission of all messages.
 
-% TODO: Reinclude the notation somewhere.
-
-\begin{comment}
-\subsection{Notation}
-
-Public/private key pairs are referred to as $(x_i, y_i)$, where $x_i$ denotes the private
-key while $y_i$ denotes the public key.
-\end{comment}
-
 \subsection{Shuffle Protocol}
 
 The shuffle protocol is based on \cite{brickell2006efficient} but refines this approach
@@ -272,8 +265,6 @@ the assignments of any other participant.
 Initially, each participant has a primary encryption key pair $(x_i, y_i)$, a signing key pair
 $(u_i, v_i)$, and a message $m_i$. The length of all messages is fixed to $L$.
 
-%TODO possible conflict session nonce n_R, group size n.
-
 All members must have agreed on a session nonce $n_R$, a common ordering of all members
 $1 \ldots n$, and every participant's public encryption and signing keys. \citeauthor{journals/corr/abs-1004-3057} suggest achieving this agreement via techniques
 proposed in \cite{lamport1998part,castro1999practical}.
@@ -282,9 +273,7 @@ Every participant maintains a tamper-evident log as in \cite{haeberlen2007peerre
 containing each message sent and received. During each phase $\phi$ of the shuffle protocol,
 each honest member $i$ sends at most one message $\mu_{i\phi}$.
 Every $\mu_{i\phi}$ contains a hash $h_{i\phi}$ of the current log head in addition to other data
-and is signed with $i$'s signing key.
-
-Informally, the protocol now proceeds in $5$ ($ + 1$) phases:
+and is signed with $i$'s signing key. The protocol proceeds in $5$ ($ + 1$) phases:
 
 \emph{Secondary Key Generation.}
       Each member $i$ generates a secondary encryption key pair $(w_i, z_i)$ and broadcasts $z_i$.
@@ -297,7 +286,7 @@ Informally, the protocol now proceeds in $5$ ($ + 1$) phases:
       
 \emph{Anonymization.}
       This phase consists of $n$ subphases. In subphase $i$, member $i$ receives all elements,
-      places them in a vector $\vec{C_0}$, randomly permutes its elements, strips one layer of
+      places them in a vector $\vec{C_i}$, randomly permutes its elements, strips one layer of
       encryption, and sends the resulting elements to member $i + 1$. The final vector $\vec{C_n}$
       is broadcast to the entire group.
       
@@ -322,7 +311,7 @@ This phase relies on both the shuffle protocol and a modification of the \ac{DCP
 to transmit all messages $m_i$ to the group while preserving integrity, anonymity and accountability.
 
 Contrary to the shuffle protocol, messages do not have a fixed length. Instead, each member
-$i$ has a message $m_i$ together with its length $L_i$. Like before, every member also holds encryption and
+$i$ has a message $m_i$ together with its length $L_i$. Every member also holds encryption and
 signing key pairs as well as knowing the session nonce and a common member ordering.
 
 The protocol proceeds in phases:
@@ -370,12 +359,7 @@ to 14 minutes in a 40-member group \cite{journals/corr/abs-1004-3057}.
 
 \Verdict is one of the most recent developments in the field of \acp{DCNetwork}.
 It extends the mechanisms used in \Dissent to provide proactive accountability, i.e.
-that every participant can verify at any time that messages by other participants are well-formed \cite{corrigan2013proactively}.
-
-To achieve this, \Verdict builds on techniques first proposed in \cite{juels2004dining}
-to attach cryptographic zero-knowledge correctness proofs to any messages it sends.
-In addition to the bilinear maps pairing scheme, \Verdict also offers two alternative
-implementations based on the ElGamal public-key cryptosystem \cite{ElGamal1985}.
+that every participant can verify at any time that messages by other participants are well-formed \cite{corrigan2013proactively}. To achieve this, \Verdict builds on techniques first proposed in \cite{juels2004dining} to attach cryptographic zero-knowledge correctness proofs to any messages it sends.
 
 Instead of the peer-to-peer approach taken by most earlier \acp{DCNetwork}
 and similar to a refined version of \Dissent \cite{wolinsky2012dissent},
@@ -391,8 +375,6 @@ is employed by default, only switching to the verifiable primitive when under at
 A detailed description of the protocol is not provided due to both space constraints and
 the complexity of the subject matter. Further information is available in \cite{corrigan2013proactively}.
 
-\subsection{Discussion}
-
 Since \Verdict is basically \Dissent with the shuffle accusal protocol replaced by
 the verifiable \ac{DCNetwork} primitive, its assumptions and attack model are anologous.
 
@@ -405,7 +387,7 @@ identify faulty participants in a 1000-node group is reduced from 20 minutes to 
 
 Some early developments in the field of \acp{DCNetwork} were left unmentioned in this paper:
 \cite{waidner1989dining} exposes and presents solutions to several weaknesses in the
-original protocol as proposed in \cite{journals/joc/Chaum88} as well as removing the assumption
+original protocol as well as removing the assumption
 of a reliable network. In \cite{bos1990detection}, \citeauthor{bos1990detection} present a system of creating sender slot reservations.
 
 Herbivore \cite{goel2003herbivore} provides anonymous communications through a variant of the
@@ -414,13 +396,11 @@ leaving disrupted groups. However, powerful attackers can exploit this to disrup
 which are only partially corrupted, making participants likely to settle in completely corrupted subgroups.
 Like k-anonymous networks, Herbivore scales well due to its low group sizes.
 
-% Crowds?
-
 \acp{MixNet} are another form of anonymity networks, initially described by \citeauthor{journals/cacm/Chaum81}
 \cite{journals/cacm/Chaum81}. Messages by participants are shuffled through a series of mix servers
 in order to hide the original sender. In contrast to \acp{DCNetwork}, security in \acp{MixNet} requires
 at least a constant fraction of nodes to be honest. \acp{MixNet} are susceptible to traffic analysis attacks,
-in which attackers able gain information about a system by monitor its traffic.
+in which attackers are able gain information about a system by monitoring its traffic.
 \Tor \cite{conf/uss/DingledineMS04} is a \ac{MixNet} variant and one of the most well-known anonymity networks
 in use today.
 
@@ -436,14 +416,14 @@ adjusting to different security requirements.
 Advances have been made in improving their scalability, and \acp{DCProtocol} 
 are now suitable for moderate sized groups with tolerance for high
 transmission latencies. If full $n$-anonymity is not needed, relaxed
-anonymity requirements makes the usage of \acp{DCNetwork} feasible even with
+security requirements makes the usage of \acp{DCNetwork} feasible even with
 a large number of participants.
 
-Disruptor detection may now be handled efficiently through cryptographic techniques
-such as zero-knowledge proofs and commitment schemes.
-
-Finally, practical applicability has been shown through prototype implementions
-of both \Verdict and \Dissent.
+Disruptor detection may now be handled more efficiently through cryptographic techniques
+such as zero-knowledge proofs, commitment schemes and the concept of accountability.
+Practical applicability
+has been shown through prototype implementions of both \Verdict and \Dissent, offering
+acceptable performance for groups of up to 1000 members.
 
 \begin{comment}
 Important points:
