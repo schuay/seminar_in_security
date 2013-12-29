@@ -12,19 +12,18 @@ are able to guarantee anonymity even in the face of strong traffic analysis.
 
 Of course, providing such strong guarantees also comes with a cost, and \acp{DCNetwork}
 have their own set of inherent challenges. In order to defeat traffic analysis,
-each participant must at the very least transmit an identical amount of data during each round,
+each participant must transmit an identical amount of data during each round,
 leading to substantial scalability issues. Likewise, the \ac{DCNetwork}'s strong anonymity guarantees result
-in difficulties in detecting and ejecting internal attackers within the network.
+in difficulties in detecting and ejecting internal attackers from the network.
 
-Research in \acp{DCNetwork} has mostly focused on these areas, and in this paper we
-present a selection of approaches attempting to improve both scalability and handling of disruptors.
+Research in \acp{DCNetwork} has mostly focused on scalability and handling of disruptors,
+and in this paper we present a selection of approaches towards their improvement.
 In Section \ref{sec:dining_cryptographers_protocol}, we give an introduction
 to the \ac{DCProtocol} and its main properties. Section \ref{sec:k-anonymous_messaging} 
 covers k-anonymous messaging, a \ac{DCProtocol} variant which obtains better scalability
 through relaxed anonymity guarantees. In Section \ref{sec:dissent} we discuss a practical
 \ac{DCProtocol} implementation called \Dissent, offering a retroactive blame mechanism.
-Finally, its successor \Verdict is briefly discussed in Section \ref{sec:verdict}. \Verdict
-improves on \Dissent's scalability through proactive accountability and a hybrid mode of operation.
+Finally, its successor \Verdict is briefly discussed in Section \ref{sec:verdict}.
 
 \section{The Dining Cryptographers Protocol} \label{sec:dining_cryptographers_protocol}
 
@@ -33,10 +32,9 @@ improves on \Dissent's scalability through proactive accountability and a hybrid
 
 \subsection{Protocol}
 
-The initial idea of \acp{DCNetwork} was first proposed by \citeauthor{journals/joc/Chaum88}
+The initial idea of \acp{DCNetwork} was first proposed
 at Crypto 1984 and subsequently published in \citeyear{journals/joc/Chaum88} \cite{journals/joc/Chaum88}.
-
-\citeauthor{journals/joc/Chaum88} introduces the protocol with the following demonstration:
+\citeauthor{journals/joc/Chaum88} introduced the protocol with the following demonstration:
 Consider three cryptographers seated around a table at a restaurant.
 After finishing dinner, they are informed that their check has already been paid\footnote{
 We assume that the check has been paid exactly once.}.
@@ -45,14 +43,14 @@ they do not want to reveal his identity) or if their dinner has been sponsored b
 
 They use the following protocol to answer this question.
 In the first stage, each of them establishes a shared secret with each of his neighbors by flipping
-a coin behind a menu such that only the two of them can see its outcome. The next stage
-consists of announcements made by every participant. Each cryptographer
+a coin behind a menu such that only the two of them can see its outcome. 
+Each cryptographer
 who has not paid then simply announces whether the two coin flips he participated
 in landed on the same side or not, while the paying cryptographer says exactly the opposite.
-Finally, they count the number of announced differences; if it is odd, then one of them has paid.
+They then count the number of announced differences; if it is odd, then one of them has paid.
 Otherwise, they determine that their dinner was paid by the NSA.
 
-We now formalize this scenario: let the cryptographers be represented as the vertices 
+We now formalize this scenario through a keysharing graph: let the cryptographers be represented as the vertices 
 $v_1, v_2, v_3$ in the complete graph $\mathbb{K}_3$. Each edge $e_{ij} = (v_i, v_j)$ represents a shared
 key and is assigned a bit value $k(e_{ij}) = 0$ for ``heads'' and $k(e_{ij}) = 1$ for ``tails''. Without loss of generality,
 let $v_1$ be the transmitting vertex, and let its message be $M_1 \in \{0, 1\}$ while $M_2, M_3 = 0$.
@@ -61,11 +59,7 @@ as well as its message $M_i$ with XOR operations\footnote{
 The sum modulo two which is sometimes used in the literature is equivalent to XOR.}
 and broadcasts $a(v_i)$ to all other vertices in the network. Each $v_i$ is now able to
 reconstruct the originally transmitted message by calculating
-$M'_i = M_1 = a(v_1) \oplus \cdots \oplus a(v_3)$.
-
-It may not be clear why $M'_i = M_1$, but it has an immediately intuitive explanation:
-Note that each shared key $e_{ij}$ is included in $M'_i$ exactly twice.
-Since $k(e_{ij}) = k(e_{ji})$ and $M_2, M_3 = 0$:
+$M'_i = M_1 = a(v_1) \oplus \cdots \oplus a(v_3)$. Since $k(e_{ij}) = k(e_{ji})$ and $M_2, M_3 = 0$:
 
 \begin{align*}
 M'_i &= a(v_1) \oplus a(v_2) \oplus a(v_3) \\
@@ -79,9 +73,11 @@ The \ac{DCProtocol} is unconditionally secure if each member is honest and perfo
 protocol correctly. A short proof sketch considers a nonpaying cryptographer $v_1$
 wishing to expose the person who paid. In the first case both of $v_1$'s shared keys are the same
 (i.e. $a(v_1) = 0$) while $a(v_2) = 1$ and $a(v_3) = 0$. If $k(e_{23}) = k(e_{12}) = k(e_{13})$, then $v_2$
-is the payer, with $v_3$ paying otherwise. Since $k(e_{23})$ takes each value with a probability
-of $0.5$, $v_1$ also does not gain any information. In the second case, let $e_{12} = 1, e_{13} = 0, \text{ and } a(v_1) = 1$. If $a(v_2) = a(v_3) = 1$, the payer is $v_2$ if $e_{23} = 1$ and $v_3$ otherwise.
-Likewise, if $a(v_2) = a(v_3) = 0$ then the payer is $v_2$ if $e_{23} = 0$ and $v_3$ otherwise.
+is the payer, with $v_3$ paying otherwise. Since $k(e_{23})$ is determined uniformly at random,
+$v_1$ does not gain any information. In the second case, the two keys held by $v_1$ are different.
+Without loss of generality, let $k(e_{12}) = 1$ and $k(e_{13}) = 0$.
+If $a(v_2) = a(v_3) = 1$, the payer is $v_2$ if $k(e_{23}) = 1$ and $v_3$ otherwise.
+Likewise, if $a(v_2) = a(v_3) = 0$ then the payer is $v_2$ if $k(e_{23}) = 0$ and $v_3$ otherwise.
 Again, $v_1$ does not gain any information about which person has paid the bill.
 A more general proof is available in \cite{journals/joc/Chaum88}.
 
@@ -107,10 +103,7 @@ as \acp{MixNet} \cite{journals/cacm/Chaum81}.
 Malicious pooling of secret keys between two or more participants in order to
 gain information about the message transmitter is called collusion.
 Consider the anonymity set\footnote{Given a set of keys and their corresponding edges $K$ in a keysharing graph $G = (V, E)$, the anonymity set is the set of vertices in a connected component of $(V, E \setminus K)$ \cite{journals/joc/Chaum88}.}
-relative to the keysharing graph\footnote{An undirected connected graph $G = (V, E)$ with $|V| = n$ vertices $v_i \in V$ and $|E| = m$ edges $e_{ij} \in E$,
-together with a function $k: E \rightarrow \{0, 1\}^p$ such that $k(e_{ij}) = k(e_{ji})$.
-Each vertex represents a participant, and each edge $e_{ij}$ corresponds to a shared key of length $p$ with the value
-$k(e_{ij})$.} and the set of pooled key edges.
+relative to the keysharing graph and the set of pooled key edges.
 The attacker gains only the knowledge which anonymity set the transmitter belongs to \cite{journals/joc/Chaum88}. To completely expose the transmitter, the attacker would
 have to own every single key shared by the transmitter.
 
@@ -121,16 +114,15 @@ a ring topology in which each participant only shares keys with two other member
 possible to expose a sender by collusion of his two neighbors.
 
 Besides sender-anonymity, it is also possible to achieve recipient-anonymity by
-encrypting the message with the intended recipient's public key and having each
-participant try to decrypt the message upon reception \cite{journals/joc/Chaum88}.
-
+encrypting the message with the intended recipient's public key and with each
+participant attemptying to decrypt the message upon arrival \cite{journals/joc/Chaum88}.
 Similarly, it is possible to tie a message to a pseudonym by using public key cryptography
 to sign it with the private key of a the desired pseudonym.
 
 However, important questions remain as well. So far, we have simply assumed secret shared keys
 to exist, but realistically these have to be generated and shared securely. Solutions
-again mostly revolve around public key crypography and will be discussed further in
-following sections.
+again mostly revolve around public key cryptography and will not be discussed further in
+this paper.
 
 Likewise, we have assumed the group membership and structure (i.e. the key-sharing graph $G$)
 to remain static and known to all participants and ignored any issues of joining or leaving participants.
@@ -139,7 +131,7 @@ Another challenge is the prevention of collisions between message transmissions.
 In this basic protocol, we have simply assumed that only a single participant transmits
 in each round. Obviously, in practice some way of collision avoidance or recovery must exist.
 Chaum suggests a simple retransmission scheme on detected collisions \cite{journals/joc/Chaum88}
-while the \ac{DCNetwork} implementation \Dissent uses a shuffle protocol to agree on
+while \Dissent uses a shuffle protocol to agree on
 a fixed transmission schedule \cite{journals/corr/abs-1004-3057}.
 
 Performance and scalability are major issues as well. A \ac{DCNetwork} of $n$ participants requires $\Omega(n^3)$ messages per round, which obviously does not scale well to larger groups.
@@ -150,8 +142,8 @@ all attempt to make higher group memberships feasible.
 We have already briefly mentioned the effect of accidental transmission collisions; what about the
 case in which these are triggered on purpose by a malicious attacker intent on disrupting the
 protocol? It is very difficult for \acp{DCNetwork} to deal with these \ac{DoS} attacks,
-since one of their main goals is the guarantee of anonymity of senders. \citeauthor{journals/joc/Chaum88}
-proposed an elaborate system of traps and checks in order to detect end ultimately exclude
+since one of their main goals is the guarantee of sender anonymity. \citeauthor{journals/joc/Chaum88}
+proposed an elaborate system of traps and checks in order to detect and ultimately exclude
 disruptors from the protocol \cite{journals/joc/Chaum88}. \Dissent and \Verdict use the concept of
 accountability in order to recover from these attacks more efficiently \cite{journals/corr/abs-1004-3057,corrigan2013proactively}.
 
