@@ -10,6 +10,7 @@
 \usepackage[backend=biber,style=ieee]{biblatex}
 \usepackage[acronym,shortcuts,nowarn]{glossaries}
 \usepackage{enumerate}
+\usepackage{wrapfig}
 
 \graphicspath{{figures/}{imgs/}}
 \bibliography{bib/db.bib}
@@ -65,26 +66,39 @@ Published by \citeauthor{journals/joc/Chaum88} in \citeyear{journals/joc/Chaum88
 \begin{frame}{The \acl{DCProtocol}}
 
 Demonstration of the protocol by example. Three cryptographers determine
-if one of them or the NSA has paid for dinner ($n = 3, |M| = 1$ bit).
+if one of them or the NSA has paid for dinner ($n = 3, |m| = 1$ bit).
+
+\begin{wrapfigure}{r}{0.4\textwidth}
+\begin{center}
+\includegraphics[width=0.38\textwidth]{keysharing_graph}
+\end{center}
+\end{wrapfigure}
 
 Nodes $v_i$ represent cryptographers, edges $e_{ij}$ represent shared keys
 with value $k(e_{ij}) \in \{0, 1\}$.
 
 Keys are chosen uniformly at random and are kept secret from other nodes.
-The goal is for each node $v_i$ to send a message $M_i \in \{0, 1\}$
+The goal is for each node $v_i$ to send a message $m_i \in \{0, 1\}$
 anonymously to all other nodes with $0 \approx \text{paid}, 1 \approx \text{did not pay}$.
 
 \end{frame}
 
-% TODO: Key-sharing graph figures
-
 \begin{frame}{The \acl{DCProtocol}}
 
 \emph{Broadcast phase}: Each node forms $a(v_i)$ by XORing all of its shared keys
-together with its message $M_i$, and broadcasts the result to all other members.
+together with its message $m_i$, and broadcasts the result to all other members.
 
-\emph{Message reconstruction}: Finally, all $a(v_i)$ are XORed by each node to form $M'_i$.
-A cryptographer paid iff $M'_i = 1$.
+\begin{wrapfigure}{r}{0.4\textwidth}
+\begin{center}
+\includegraphics[width=0.38\textwidth]{keysharing_graph}
+\end{center}
+\end{wrapfigure}
+
+\emph{Message reconstruction}: Finally, all $a(v_i)$ are XORed by each node to form $m'_i$.
+A cryptographer paid iff $m'_i = 1$.
+
+In this example, $\forall i: a(v_i) = 1$, and $m'_i = 1$.
+
 \end{frame}
 
 \begin{frame}{The \acl{DCProtocol}}
@@ -92,11 +106,11 @@ A cryptographer paid iff $M'_i = 1$.
 How does it work? Shared keys cancel each other out. 
 
 \begin{align*}
-M'_i &= a(v_1) \oplus a(v_2) \oplus a(v_3) \\
-     &= M_1 \oplus M_2 \oplus M_3
+m'_i &= a(v_1) \oplus a(v_2) \oplus a(v_3) \\
+     &= m_1 \oplus m_2 \oplus m_3
      \oplus (k(e_{12}) \oplus k(e_{21})) \\
      & \oplus (k(e_{13}) \oplus k(e_{31})) 
-     \oplus (k(e_{23}) \oplus k(e_{32})) = M_1 \oplus M_2 \oplus M_3
+     \oplus (k(e_{23}) \oplus k(e_{32})) = m_1 \oplus m_2 \oplus m_3
 \end{align*}
 
 \end{frame}
