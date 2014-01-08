@@ -210,7 +210,9 @@ Each subgroup then runs $2M$ iterations of the protocol with each acting as a se
 Every participant $i$ randomly chooses one personal transmission slot $t_i \in [1, 2M]$,
 and can provide a zero-knowledge
 proof that at most one slot was chosen. The input of each member $i$ in round $\phi$ is
-a tuple $X_{i\phi} = (m_{i\phi}, g_{i\phi})$ interpreted as an integer,
+a tuple $X_{i\phi} = (m_{i\phi}, g_{i\phi})$ interpreted as an element of $\mathbb{Z}_q$\footnote{
+$p$ and $q$ are parameters of the algorithm such that $p, q$ are prime and $q$ divides $p - 1$.
+},
 where $m_{i\phi}$ is the message to be transmitted, and
 $g_{i\phi}$ identifies the group of the intended recipient. Each member $i$ sets $X_{it_i}$ to $(m_i, g_i)$,
 and $X_{i\phi} = (nil, nil)$ for all other rounds $\phi \neq t_i$.
