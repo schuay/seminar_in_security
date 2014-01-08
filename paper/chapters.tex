@@ -14,7 +14,7 @@ Of course, providing such strong guarantees also comes with a cost, and \acp{DCN
 have their own set of inherent challenges. In order to defeat traffic analysis,
 each participant must transmit an identical amount of data during each round,
 leading to substantial scalability issues. Likewise, the \ac{DCNetwork}'s strong anonymity guarantees result
-in difficulties in detecting and ejecting internal attackers from the network.
+in difficulties in detecting and ejecting internal attackers (also called disruptors) from the network.
 
 Research in \acp{DCNetwork} has mostly focused on scalability and handling of disruptors,
 and in this paper we present a selection of approaches towards their improvement.
@@ -52,20 +52,20 @@ Otherwise, they determine that their dinner was paid by the NSA.
 We now formalize this scenario through a keysharing graph: let the cryptographers be represented as the vertices 
 $v_1, v_2, v_3$ in the complete graph $\mathbb{K}_3$. Each edge $e_{ij} = (v_i, v_j)$ represents a shared
 key and is assigned a bit value $k(e_{ij}) = 0$ for ``heads'' and $k(e_{ij}) = 1$ for ``tails''. Without loss of generality,
-let $v_1$ be the transmitting vertex, and let its message be $M_1 \in \{0, 1\}$ while $M_2, M_3 = 0$.
+let $v_1$ be the transmitting vertex, and let its message be $m_1 \in \{0, 1\}$ while $m_2, m_3 = 0$.
 Every vertex $v_i$ now creates its announcement value $a(v_i)$ by combining all associated shared keys $k(e_{ij})$
-as well as its message $M_i$ with XOR operations\footnote{
+as well as its message $m_i$ with XOR operations\footnote{
 The sum modulo two which is sometimes used in the literature is equivalent to XOR.}
 and broadcasts $a(v_i)$ to all other vertices in the network. Each $v_i$ is now able to
 reconstruct the originally transmitted message by calculating
-$M'_i = M_1 = a(v_1) \oplus \cdots \oplus a(v_3)$. Since $k(e_{ij}) = k(e_{ji})$ and $M_2, M_3 = 0$:
+$m'_i = m_1 = a(v_1) \oplus \cdots \oplus a(v_3)$. Since $k(e_{ij}) = k(e_{ji})$ and $m_2, m_3 = 0$:
 
 \begin{align*}
-M'_i &= a(v_1) \oplus a(v_2) \oplus a(v_3) \\
-     &= M_1 \oplus M_2 \oplus M_3
+m'_i &= a(v_1) \oplus a(v_2) \oplus a(v_3) \\
+     &= m_1 \oplus m_2 \oplus m_3
      \oplus (k(e_{12}) \oplus k(e_{21})) \\
      & \oplus (k(e_{13}) \oplus k(e_{31})) 
-     \oplus (k(e_{23}) \oplus k(e_{32})) = M_1
+     \oplus (k(e_{23}) \oplus k(e_{32})) = m_1
 \end{align*}
 
 The \ac{DCProtocol} is unconditionally secure if each member is honest and performs the
@@ -156,8 +156,9 @@ of the core anonymity goals \cite{von2003k}.
 
 Unlike \acp{DCNetwork} which guarantee that an attacker monitoring all traffic cannot gain
 any information which of the $n$ participants was the sender, \citeauthor{von2003k} introduce
-the concept of sender and receiver k-anonymity. A protocol is said to be sender k-anonymous
-if each message sent by an honest party cannot be distinguished from those sent by at least $k - 1$
+the concept of sender and receiver k-anonymity. A protocol is said to be sender (receiver) k-anonymous
+if each message sent (received) by an honest party cannot be distinguished from those
+sent (received) by at least $k - 1$
 other honest parties \cite{von2003k}. While full anonymity is required in some cases, in others
 k-anonymity suffices even for small values of $k$. For example, 2-anonymity and 3-anonymity would invalidate, respectively, a criminal and a civil charge in the United States legal system.
 
@@ -204,16 +205,17 @@ any subgroup contains less than $k$ honest members.
 Each subgroup then runs $2M$ iterations of the protocol with each acting as a separate transmission slot.
 Every participant $i$ randomly chooses one personal transmission slot $t_i \in [1, 2M]$,
 and can provide a zero-knowledge
-proof that at most one slot was chosen. The input of each member $i$ in round $j$ is
-a tuple $X_{ij} = (m_{ij}, g_{ij})$, where $m_{ij}$ is the message to be transmitted, and
-$g_{ij}$ identifies the group of the intended recipient. $i$ sets $X_{it_i}$ to $(m_i, g_i)$,
-and $X_{ij} = (nil, nil)$ for all other rounds $j \neq t_i$.
+proof that at most one slot was chosen. The input of each member $i$ in round $\phi$ is
+a tuple $X_{i\phi} = (m_{i\phi}, g_{i\phi})$ interpreted as an integer,
+where $m_{i\phi}$ is the message to be transmitted, and
+$g_{i\phi}$ identifies the group of the intended recipient. Each member $i$ sets $X_{it_i}$ to $(m_i, g_i)$,
+and $X_{i\phi} = (nil, nil)$ for all other rounds $\phi \neq t_i$.
 
-In each round $j$, the subgroup then performs the multiparty sum protocol to compute
-$\sum_i X_{ij}$. Pedersen commitments are used to verify a) partitions of individual sum
-elements $X_{ij}$, b) partial sums, and c) the final result. If no collision takes place,
-$\sum_i X_{ij} = (m_i, g_i)$ for the transmitting member $i$ in round $j$, since all
-other inputs $X_{ij} = (nil, nil)$. Each member of the subgroup finally broadcasts the
+In each round $\phi$, the subgroup then performs the multiparty sum protocol to compute
+$\sum_i X_{i\phi}$. Pedersen commitments are used to verify a) partitions of individual sum
+elements $X_{i\phi}$, b) partial sums, and c) the final result. If no collision takes place,
+$\sum_i X_{i\phi} = (m_i, g_i)$ for the transmitting member $i$ in round $\phi$, since all
+other inputs $X_{i\phi} = (nil, nil)$. Each member of the subgroup finally broadcasts the
 reconstructed message to each member of the target group. 
 
 In case of a collision, the transmitting member simply
@@ -238,7 +240,7 @@ to bound the probability of any subgroup containing less than $k$ honest members
 In contrast to the base \ac{DCProtocol}, k-anonymous messaging offers improved scalability and
 a novel way of detecting faulty members. As a trade-off, anonymity guarantees are relaxed
 and provide k-anonymity only. It is especially relevant for cases in which group sizes are high,
-and complete anonymity is not required. \citeauthor{von2003k} especially highlight use over the
+and complete anonymity is not required. \citeauthor{von2003k} highlight use over the
 Internet as particularly efficient because of the low round complexity in a k-anonymity protocol.
 
 \section{Dissent} \label{sec:dissent}
@@ -288,7 +290,8 @@ Every $\mu_{i\phi}$ contains a hash $h_{i\phi}$ of the current log head in addit
 and is signed with $i$'s signing key. The protocol proceeds in $5$ ($ + 1$) phases:
 
 \emph{Secondary Key Generation.}
-      Each member $i$ generates a secondary encryption key pair $(w_i, z_i)$ and broadcasts $z_i$.
+      Each member $i$ generates a secondary encryption key pair $(w_i, z_i)$ and broadcasts
+      the public key $z_i$.
       
 \emph{Data Submission.}
       Each member $i$ encrypts his message $m_i$ in $n$ layers with all secondary public encryption keys,
@@ -343,7 +346,8 @@ The protocol proceeds in phases:
 
 \emph{Data transmission.}
       Every participant $j$ can now decode $s_{ij}$ and use it to generate the shared key $C_{ij}$ which
-      is subsequently verified using $\text{HASH}(C_{ij})$. All $C_{ij}$ are finally signed broadcast in the order of $\pi$.
+      is subsequently verified using $\text{HASH}(C_{ij})$. All $C_{ij}$ are finally signed and
+      broadcast in the order of $\pi$.
       
 \emph{Message Recovery.}
       All messages may now be recovered by simply XORing all received messages from the last round for each phase: $m_i = C_{i1} \oplus \ldots \oplus C_{in}$. Received ciphertexts $C_{ij}$ can be verified

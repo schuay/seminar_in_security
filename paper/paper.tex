@@ -68,17 +68,18 @@
 \begin{abstract}
     \acp{DCNetwork} are anonymity networks which provide provably strong anonymity
     as well as immunity to traffic analysis attacks. However, \acp{DCNetwork} have
-    inherent challenges handling internal disruptors and scaling to larger group sizes.
+    inherent challenges handling internal \ac{DoS} attacks and scaling to larger group sizes.
     
     Since their inception, a number of new contributions have been made addressing
     these and other concerns. k-anonymous messaging improves scalability through
-    relaxed security guarantees. \Dissent introduces the use of an anonymous shuffle protocol
+    relaxed security guarantees together with application of Pedersen commitments,
+    zero-knowledge proofs, and a secure multiparty sum protocol.
+    \Dissent introduces the use of an anonymous shuffle protocol
     for transmission slot reservations and accountability through a retroactive blame
-    protocol. \Verdict improves on this further with a proactively accountable
-    \ac{DCNetwork} primitive which allows for efficient recovery from disruption.
+    protocol.
     
     In this paper, we present a brief introduction to the base \ac{DCProtocol},
-    k-anonymous messaging, \Dissent and \Verdict.
+    k-anonymous messaging, and \Dissent.
 \end{abstract}
 
 \begin{IEEEkeywords}
