@@ -21,9 +21,8 @@ and in this paper we present a selection of approaches towards their improvement
 In Section \ref{sec:dining_cryptographers_protocol}, we give an introduction
 to the \ac{DCProtocol} and its main properties. Section \ref{sec:k-anonymous_messaging} 
 covers k-anonymous messaging, a \ac{DCProtocol} variant which obtains better scalability
-through relaxed anonymity guarantees. In Section \ref{sec:dissent} we discuss a practical
+through relaxed anonymity guarantees. Finally, in Section \ref{sec:dissent} we discuss a practical
 \ac{DCProtocol} implementation called \Dissent, offering a retroactive blame mechanism.
-Finally, its successor \Verdict is briefly discussed in Section \ref{sec:verdict}.
 
 \section{The Dining Cryptographers Protocol} \label{sec:dining_cryptographers_protocol}
 
@@ -355,35 +354,16 @@ A working prototype implementation demonstrates the feasibility of this protocol
 for small to moderate group sizes, scaling from a runtime of 1 minute in a 4-member group
 to 14 minutes in a 40-member group \cite{journals/corr/abs-1004-3057}.
 
-\section{Verdict} \label{sec:verdict}
+\section{Related Work}
 
 \Verdict is one of the most recent developments in the field of \acp{DCNetwork}.
 It extends the mechanisms used in \Dissent to provide proactive accountability, i.e.
-that every participant can verify at any time that messages by other participants are well-formed \cite{corrigan2013proactively}. To achieve this, \Verdict builds on techniques first proposed in \cite{juels2004dining} to attach cryptographic zero-knowledge correctness proofs to any messages it sends.
-
-Instead of the peer-to-peer approach taken by most earlier \acp{DCNetwork}
-and similar to a refined version of \Dissent \cite{wolinsky2012dissent},
-\Verdict uses a client-server architecture to lighten the communications load
-on each participant. In this model, each client communicates with at least one server,
-while each server communicates with all other servers. Security
-is maintained as long as at least a single server is honest.
-
-Finally, due to the performance overhead of proactively accountable messages,
+that every participant can verify at any time that messages by other participants are well-formed \cite{corrigan2013proactively}. Due to the performance overhead of proactively accountable messages,
 \Verdict offers a hybrid mode in which the standard XOR-based \ac{DCProtocol}
 is employed by default, only switching to the verifiable primitive when under attack.
-
-A detailed description of the protocol is not provided due to both space constraints and
-the complexity of the subject matter. Further information is available in \cite{corrigan2013proactively}.
-
-Since \Verdict is basically \Dissent with the shuffle accusal protocol replaced by
-the verifiable \ac{DCNetwork} primitive, its assumptions and attack model are anologous.
-
 In comparison to \Dissent, the main advantages \Verdict offers are 
 improved scalability and efficiency properties when under attack. The time taken to
-identify faulty participants in a 1000-node group is reduced from 20 minutes to 26 seconds \cite{corrigan2013proactively}.
-
-
-\section{Related Work}
+identify faulty participants in a 1000-node group is reduced from 20 minutes to 26 seconds.
 
 Some early developments in the field of \acp{DCNetwork} were left unmentioned in this paper:
 \cite{waidner1989dining} exposes and presents solutions to several weaknesses in the
