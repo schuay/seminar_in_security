@@ -17,7 +17,10 @@ are able to guarantee anonymity even in the face of strong traffic analysis.
 Of course, providing such strong guarantees also comes with a cost, and \acp{DCNetwork}
 have their own set of inherent challenges. In order to defeat traffic analysis,
 each participant must transmit an identical amount of data during each round,
-leading to substantial scalability issues. Likewise, the \ac{DCNetwork}'s strong anonymity guarantees result
+leading to substantial scalability issues. Scalability is a particularly vital property of anonymity
+networks: the larger the group of all participants is, the more uncertain an attacker 
+is as to who sent (or received) a message. Additionally, the \ac{DCNetwork}'s strong anonymity 
+guarantees result
 in difficulties in detecting and ejecting internal attackers (also called disruptors) from the network.
 
 Research in \acp{DCNetwork} has mostly focused on scalability and handling of disruptors,
@@ -72,8 +75,8 @@ m'_i &= a(v_1) \oplus a(v_2) \oplus a(v_3) \\
      \oplus (k(e_{23}) \oplus k(e_{32})) = m_1
 \end{align*}
 
-The \ac{DCProtocol} is unconditionally secure if each member is honest and performs the
-protocol correctly. A short proof sketch considers a nonpaying cryptographer $v_1$
+The \ac{DCProtocol} is unconditionally secure if each member is honest, i.e. if he follows the protocol
+exactly and is not under an attacker's control. A short proof sketch considers a nonpaying cryptographer $v_1$
 wishing to expose the person who paid. In the first case both of $v_1$'s shared keys are the same
 (i.e. $a(v_1) = 0$) while $a(v_2) = 1$ and $a(v_3) = 0$. If $k(e_{23}) = k(e_{12}) = k(e_{13})$, then $v_2$
 is the payer, with $v_3$ paying otherwise. Since $k(e_{23})$ is determined uniformly at random,
@@ -203,7 +206,7 @@ logarithms.
 In k-anonymous messaging, the group consisting of $n$ members is first partitioned
 into subgroups of size $M = O(k)$ such that with high probability $k$ members of each group
 are honest. This is accomplished by combining the original assumption that at least
-$\frac{n}{2}$ members are honest with a Chernoff Bound to limit the probability that
+$\frac{n}{2}$ members are honest with the well-known Chernoff Bound to limit the probability that
 any subgroup contains less than $k$ honest members.
 
 Each subgroup then runs $2M$ iterations of the protocol with each acting as a separate transmission slot.
@@ -233,7 +236,7 @@ in $t_i$ since there are $2M$ rounds and $M$ members.
 
 Recall that in a \ac{DCNetwork}, the count of messages sent is $\Omega(n^3)$ in any case.
 In a k-anonymous messaging round with exclusively honest participants, $O(k^2)$ messages are transmitted.
-Faulty members are detected with high probability, and as such
+Through zero-knowledge proofs, faulty members are detected with high probability, and as such
 honest rounds are treated as the standard case in efficiency analysis.
 Note that $k$ is unrelated to $n$, vastly improving the protocol's scalability.
 On the other hand, it is possible to increase $k$ up to $n$ if needed.
@@ -292,7 +295,7 @@ proposed in \cite{lamport1998part,castro1999practical}.
 Every participant maintains a tamper-evident log as in \cite{haeberlen2007peerreview}
 containing each message sent and received. During each phase $\phi$ of the shuffle protocol,
 each honest member $i$ sends at most one message $\mu_{i\phi}$.
-Every $\mu_{i\phi}$ contains a hash $h_{i\phi}$ of the current log head in addition to other data
+Every $\mu_{i\phi}$ contains a hash $h_{i\phi}$ of the current log head in addition to the session nonce $n_R$
 and is signed with $i$'s signing key. The protocol proceeds in $5$ ($ + 1$) phases:
 
 \emph{Secondary Key Generation.}
@@ -348,7 +351,8 @@ The protocol proceeds in phases:
 
 \emph{Message Descriptor Shuffle.}
       The shuffle protocol is now executed with each participant using its message descriptor
-      as the input. Upon conclusion, each member is assigned a transmission slot $\pi(i)$.
+      as the input. Upon conclusion, each member is assigned a transmission slot $\pi(i)$ determined
+      by the position of its message descriptor within the shuffled result sequence.
 
 \emph{Data transmission.}
       Every participant $j$ can now decode $s_{ij}$ and use it to generate the shared key $C_{ij}$ which
@@ -406,8 +410,6 @@ at least a constant fraction of nodes to be honest. \acp{MixNet} are susceptible
 in which attackers are able gain information about a system by monitoring its traffic.
 \Tor \cite{conf/uss/DingledineMS04} is a \ac{MixNet} variant and one of the most well-known anonymity networks
 in use today.
-
-\enlargethispage{-.9in}
 
 \section{Conclusion}
 
